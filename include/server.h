@@ -3,6 +3,9 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
+#ifndef SERVER_H
+#define SERVER_H
+
 class server {
   public:
     server(boost::asio::io_service& io_service, short port)
@@ -15,3 +18,5 @@ class server {
     boost::asio::io_service& io_service_;
     tcp::acceptor acceptor_;
 }
+
+#endif

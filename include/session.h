@@ -3,6 +3,9 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
+#ifndef SESSION_H
+#define SESSION_H
+
 class session {
   public:
     session(boost::asio::io_service& io_service)
@@ -17,3 +20,5 @@ class session {
     enum { max_length = 1024 };
     char data_[max_length];
 }
+
+#endif
