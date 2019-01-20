@@ -14,6 +14,7 @@
 #include <boost/asio.hpp>
 #include "server.h"
 #include "session.h"
+#include "config_parser.h"
 
 int main(int argc, char* argv[])
 {
@@ -25,10 +26,17 @@ int main(int argc, char* argv[])
       return 1;
     }
 
+    // copied code from Assignment 1 to find out the portNumber from target config file
+    NginxConfigParser config_parser;
+    NginxConfig config;
+    config_parser.Parse(argv[1], &config);
+    short portNumber = (short)config.getPort();
+    std::cout << portNumber << std::endl;
     boost::asio::io_service io_service;
 
     using namespace std; // For atoi.
-    server s(io_service, atoi(argv[1]));
+
+    server s(io_service, portNumber);
 
     io_service.run();
   }
