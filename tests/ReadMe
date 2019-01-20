@@ -1,0 +1,11 @@
+Fixed the following problems in config_parser.cc:
+
+1. Codes after a slash inside the single quote is not correctly parsed (/' should be ' instead of / and ')
+    like 'asdf/'' -> asdf'. 
+
+2. No matching braces still get passed.
+
+3. When the end of file if there is still unfinished token, the program shouldn't be successfully parsed.
+
+4. Codes after a slash inside the double quote is not correctly parsed (/" should be " instead of / and ")
+    like "asdf/"" -> asdf". 
