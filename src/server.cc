@@ -26,7 +26,6 @@ server::server(boost::asio::io_service& io_service, short port)
 
 void server::start_accept()
 {
-  std::cerr << "ACCEPT" << std::endl;
   session* new_session = new session(io_service_);
   acceptor_.async_accept(new_session->socket(),
     boost::bind(&server::handle_accept, this, new_session,
