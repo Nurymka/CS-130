@@ -12,8 +12,8 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include "include/server.h"
-#include "include/session.h"
+#include "server.h"
+#include "session.h"
 
 int main(int argc, char* argv[])
 {

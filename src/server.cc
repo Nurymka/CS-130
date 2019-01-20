@@ -12,8 +12,8 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include "include/session.h"
-#include "include/server.h"
+#include "session.h"
+#include "server.h"
 
 // refactored server class from server_main.cc
 
@@ -26,6 +26,7 @@ server::server(boost::asio::io_service& io_service, short port)
 
 void server::start_accept()
 {
+  std::cerr << "ACCEPT" << std::endl;
   session* new_session = new session(io_service_);
   acceptor_.async_accept(new_session->socket(),
     boost::bind(&server::handle_accept, this, new_session,
@@ -45,5 +46,3 @@ void server::handle_accept(session* new_session,
   }
   start_accept();
 }
-
-

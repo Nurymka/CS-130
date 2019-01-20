@@ -12,16 +12,17 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include "include/session.h"
+#include "session.h"
 
 // refactored session class from server_main.cc
+
 
 session::session(boost::asio::io_service& io_service)
     : socket_(io_service)
 {
 }
 
-tcp::socket& socket() 
+tcp::socket& session::socket() 
 {
   return socket_;
 }
@@ -64,7 +65,3 @@ void session::handle_write(const boost::system::error_code& error)
     delete this;
   }
 }
-
-tcp::socket socket_;
-enum { max_length = 1024 };
-char data_[max_length];

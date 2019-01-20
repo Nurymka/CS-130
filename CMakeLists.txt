@@ -36,12 +36,16 @@ include_directories(include)
 
 # TODO(!): Update name and srcs
 # add_library(example_lib src/example_lib.cc)
+add_library(server_lib src/server.cc)
+add_library(session_lib src/session.cc)
+target_link_libraries(session_lib Boost::system)
+target_link_libraries(server_lib Boost::system session_lib)
 
 # TODO(!): Update executable name, srcs, and deps
 # add_executable(example_server src/example_server_main.cc)
 # target_link_libraries(example_server example_lib Boost::system)
-add_executable(server src/server_main.cc)
-target_link_libraries(server Boost::system)
+add_executable(server src/main.cc)
+target_link_libraries(server Boost::system server_lib session_lib)
 
 # TODO(!): Update test executable name, srcs, and deps
 # add_executable(example_lib_test tests/example_lib_test.cc)
