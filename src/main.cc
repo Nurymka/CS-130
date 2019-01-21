@@ -31,11 +31,11 @@ int main(int argc, char* argv[])
     NginxConfig config;
     config_parser.Parse(argv[1], &config);
     short portNumber = (short)config.getPort();
-    std::cout << portNumber << std::endl;
     boost::asio::io_service io_service;
 
     using namespace std; // For atoi.
-
+    //std::cout<<"starting service at port"<< std::endl;
+    //std::cout<<portNumber<< std::endl;
     server s(io_service, portNumber);
 
     io_service.run();

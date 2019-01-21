@@ -22,11 +22,12 @@ server::server(boost::asio::io_service& io_service, short port)
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
 {
   start_accept();
+  //std::cout<<"server"<< std::endl;
 }
 
 void server::start_accept()
 {
-
+  //std::cout<<"start_accept "<< std::endl;
   session* new_session = new session(io_service_);
   acceptor_.async_accept(new_session->socket(),
     boost::bind(&server::handle_accept, this, new_session,
@@ -38,10 +39,12 @@ void server::handle_accept(session* new_session,
 {
   if (!error)
   {
+    //std::cout<<"handle_accept "<< std::endl;
     new_session->start();
   }
   else
   {
+    //std::cout<<"handle_accept error"<< std::endl;
     delete new_session;
   }
   start_accept();

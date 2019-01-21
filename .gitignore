@@ -3,3 +3,6 @@
 build
 build_*
 mirror
+test
+.idea
+cmake-build-debug
