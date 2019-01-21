@@ -52,9 +52,12 @@ target_link_libraries(server Boost::system server_lib session_lib config_parser_
 # TODO(!): Update test executable name, srcs, and deps
 # add_executable(example_lib_test tests/example_lib_test.cc)
 # target_link_libraries(example_lib_test example_lib gtest_main)
+add_executable(config_parser_lib_test tests/config_parser_test.cc)
+target_link_libraries(config_parser_lib_test config_parser_lib gtest_main)
 
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 # TODO(!): Update with target/test targets
 # include(cmake/CodeCoverageReportConfig.cmake)
