@@ -39,8 +39,10 @@ include_directories(include)
 add_library(server_lib src/server.cc)
 add_library(session_lib src/session.cc)
 add_library(config_parser_lib src/config_parser.cc)
+add_library(http_request_lib src/http_request.cc)
+add_library(http_response_lib src/http_response.cc)
 
-target_link_libraries(session_lib Boost::system)
+target_link_libraries(session_lib Boost::system http_request_lib http_response_lib)
 target_link_libraries(server_lib Boost::system session_lib)
 
 # TODO(!): Update executable name, srcs, and deps
@@ -55,9 +57,17 @@ target_link_libraries(server Boost::system server_lib session_lib config_parser_
 add_executable(config_parser_lib_test tests/config_parser_test.cc)
 target_link_libraries(config_parser_lib_test config_parser_lib gtest_main)
 
+add_executable(http_request_test tests/http_request_test.cc)
+target_link_libraries(http_request_test http_request_lib gtest_main)
+
+add_executable(http_response_test tests/http_response_test.cc)
+target_link_libraries(http_response_test http_response_lib gtest_main)
+
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(http_request_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(http_response_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 # TODO(!): Update with target/test targets
 # include(cmake/CodeCoverageReportConfig.cmake)

@@ -30,66 +30,11 @@ class HttpRequest {
     //messageBody:
     string body;
 
-    void parse(const string& data) {
-      std::istringstream input(data);
-      string line;
-
-      ParseState state = START_LINE;
-      while(getline(input, line)) {
-        if (state == START_LINE) {
-          vector<string> tokens = split_str(line, ' ');
-          method = tokens[0];
-          target = tokens[1];
-          version = tokens[2];
-          state = HEADERS;
-        } else if (state == HEADERS) {
-          //cout << "==========" << "\\" + line << endl;
-          if (line.empty() || line == "\\n") {
-            state = BODY;
-            
-          } else {
-            //vector<string> headerStrs = split_str(line, ':');
-            headers.push_back(line);
-          }
-        } else {
-          if (!body.empty()) {
-            body.append("\\r\\n");
-          }
-          body.append(line);
-        }
-      }
-    }
-
-    string to_string() {
-      std::ostringstream oss;
-      oss << method << " " << target << " " << version << "\r\n";
-      for(auto const &header: headers) {
-        oss << header << "\r\n";
-      }
-      //oss << "\r\n";
-      //oss << body;
-      //cout << "==========" << endl << body << endl << "=======" << endl;
-      return oss.str();
-    }
+    void parse(const string& data);
+    string to_string();
 
   private:
-
-    vector<string> split_str(const string& s, char c) {
-      vector<string> v;
-      string::size_type i = 0;
-      string::size_type j = s.find(c);
-
-      while (j != string::npos) {
-          v.push_back(s.substr(i, j-i));
-          i = ++j;
-          j = s.find(c, j);
-
-          if (j == string::npos)
-            v.push_back(s.substr(i, s.length() - i - 1));
-      }
-      return v;
-    }
-    
+    vector<string> split_str(const string& s, char c);
 
     enum ParseState {
       START_LINE = 0,

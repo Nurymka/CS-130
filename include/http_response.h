@@ -21,28 +21,7 @@ class HttpResponse {
     vector<string> headers; 
     string body;
 
-    string to_string() {
-      string escaped = escape(body);
-
-      string status;
-      switch(status_code) {
-        case 200:
-          status = "OK";
-          break;
-      }
-
-      std::ostringstream oss;
-      oss << version.c_str() << " " << std::to_string(status_code) << " " << status << "\r\n";
-      for(auto const &value: headers) {
-        oss << value << "\r\n";
-      }
-      int contentLength = escaped.size() + 2 ;
-      oss << "Content-Length: " << contentLength << "\r\n";
-      oss << "\r\n";
-      oss << escaped;
-      oss << "\r\n";
-      return oss.str();
-    }
+    string to_string();
   private:
     string escape(string input) {
       
