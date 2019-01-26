@@ -27,7 +27,7 @@ class session {
     void handle_write(const boost::system::error_code& error);
 
     void handle();
-
+    void handleBadRequest();
     tcp::socket socket_;
 
     char _buffer[buffer_length];

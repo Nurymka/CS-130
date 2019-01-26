@@ -30,7 +30,9 @@ class HttpRequest {
     //messageBody:
     string body;
 
-    void parse(const string& data);
+    int contentLength;
+
+    bool parse(const string& data);
     string to_string();
 
   private:

@@ -21,6 +21,9 @@ string HttpResponse::to_string() {
     case 200:
         status = "OK";
         break;
+    case 400:
+        status = "BAD REQUEST";
+        break;
     }
 
     std::ostringstream oss;

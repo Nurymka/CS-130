@@ -15,34 +15,54 @@ using namespace std;
 // https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/example/cpp11/http/server/request_parser.cpp
 
 
-void HttpRequest::parse(const string& data) {
+bool HttpRequest::parse(const string& data) {
     std::istringstream input(data);
     string line;
 
     ParseState state = START_LINE;
     while(getline(input, line)) {
-    if (state == START_LINE) {
-        vector<string> tokens = split_str(line, ' ');
-        method = tokens[0];
-        target = tokens[1];
-        version = tokens[2];
-        state = HEADERS;
-    } else if (state == HEADERS) {
-        //cout << "==========" << "\\" + line << endl;
-        if (line.empty() || line == "\\n") {
-        state = BODY;
-        
-        } else {
-        //vector<string> headerStrs = split_str(line, ':');
-        headers.push_back(line);
-        }
-    } else {
-        if (!body.empty()) {
-        body.append("\\r\\n");
-        }
-        body.append(line);
+      if (state == START_LINE) {
+          vector<string> tokens = split_str(line, ' ');
+          if(tokens.size() != 3) {
+            return false;
+          }
+          method = tokens[0];
+          if(method != "GET" || method != "PUT" || method != "PATCH" || method != "DELETE") {
+            return false;
+          }
+          target = tokens[1];
+          version = tokens[2];
+          state = HEADERS;
+      } else if (state == HEADERS) {
+          //cout << "==========" << "\\" + line << endl;
+          if (line.empty() || line == "\\n") {
+            state = BODY;
+          } else {
+            vector<string> headerStrs = split_str(line, ':');
+            if(headerStrs.size() != 2 || headerStrs[1].at(0) != ' ') {
+              return false;
+            }
+            if(headerStrs[0] == "Content-Length") {
+              try {
+                string contentlength = headerStrs[1].substr(1, headerStrs[1].length());
+                this->contentLength = atoi((char*)contentLength);
+              } catch (exception const & e) {
+                return false;
+              }
+            }
+            headers.push_back(line);
+          }
+      } else {
+          if (!body.empty()) {
+          body.append("\\r\\n");
+          }
+          body.append(line);
+      }
     }
+    if(body.length() != contentLength) {
+      return false;
     }
+    return true;
 }
 
 string HttpRequest::to_string() {

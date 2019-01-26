@@ -51,10 +51,10 @@ void session::handle_read(const boost::system::error_code& error,
       
       string str(input.begin(), input.end());
       //std::cout<<"bytes_transferredstd < buffer_len -1"<<std::endl;
-      httpRequest.parse(str);
+      bool success = httpRequest.parse(str);
 
       handle();
-
+      
       string res = httpResponse.to_string();
 
       const char* chars = res.c_str();
@@ -88,6 +88,14 @@ void session::handle() {
   //std::cout<<"handle2"<< std::endl;
   //cout << body << endl;
   //std::cout<<"handle3"<< std::endl;
+  httpResponse.body = string(body.begin(), body.end());
+}
+
+void session::handleBadRequest() {
+  this->httpResponse.version = this->httpRequest.version;
+  this->httpResponse.status_code = 400;
+  httpResponse.headers.push_back("Content-Type: text/plain");
+  string body = httpRequest.to_string();
   httpResponse.body = string(body.begin(), body.end());
 }
 
