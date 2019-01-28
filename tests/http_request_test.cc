@@ -25,6 +25,7 @@ namespace {
         EXPECT_EQ(req.version, "HTTP/1.1");
         EXPECT_EQ(req.headers.size(), 5);
         EXPECT_EQ(req.body, "TEST");
+        EXPECT_EQ(req.to_string(), input);
     }
 
     TEST_F(HttpRequestTest, InvalidStartLine) {
