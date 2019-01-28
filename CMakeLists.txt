@@ -80,7 +80,11 @@ add_test(
 # generate_coverage_report(TARGETS example_server example_lib TESTS example_lib_test)
 
 include(cmake/CodeCoverageReportConfig.cmake)
-generate_coverage_report(TARGETS server Boost::system server_lib session_lib config_parser_lib TESTS config_parser_lib_test http_request_test http_response_test)
+generate_coverage_report(
+    TARGETS server Boost::system server_lib session_lib config_parser_lib 
+        http_request_lib http_response_lib
+    TESTS config_parser_lib_test http_request_test http_response_test
+)
 
 # Copies the server config folder
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/config DESTINATION ${CMAKE_BINARY_DIR})
