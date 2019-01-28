@@ -23,5 +23,4 @@ namespace {
         
         EXPECT_EQ(res.to_string(), output);
     }
-
 }

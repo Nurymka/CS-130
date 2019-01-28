@@ -21,6 +21,28 @@
 // https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/example/cpp11/http/server/request_parser.cpp
 // https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/example/cpp11/http/server/request_handler.cpp
 
+#pragma region Static Methods
+
+void session::handleGoodRequest(HttpRequest& httpRequest, HttpResponse& httpResponse) {
+  httpResponse.version = httpRequest.version;
+  httpResponse.status_code = 200;
+  httpResponse.headers.push_back("Content-Type: text/plain");
+  string body = httpRequest.to_string();
+  httpResponse.body = string(body.begin(), body.end());
+}
+
+void session::handleBadRequest(HttpRequest& httpRequest, HttpResponse& httpResponse) {
+  httpResponse.version = httpRequest.version;
+  httpResponse.status_code = 400;
+  httpResponse.headers.push_back("Content-Type: text/plain");
+  string body = httpRequest.to_string();
+  httpResponse.body = string(body.begin(), body.end());
+}
+
+#pragma endregion
+
+#pragma region Instance Methods
+
 session::session(boost::asio::io_service& io_service)
     : socket_(io_service)
 {
@@ -46,17 +68,21 @@ void session::handle_read(const boost::system::error_code& error,
   {
     //std::cout<<"handle_read start"<< std::endl;
     int buffer_len = sizeof(_buffer);
-    input.assign(_buffer, _buffer + bytes_transferred);
+    input_.assign(_buffer, _buffer + bytes_transferred);
     if (bytes_transferred < buffer_length) {
       
-      string str(input.begin(), input.end());
+      string str(input_.begin(), input_.end());
       //std::cout<<"bytes_transferredstd < buffer_len -1"<<std::endl;
-      bool success = httpRequest.parse(str);
+      bool success = httpRequest_.parse(str);
       std::cout << str;
 
-      handle();
+      if (success) {
+        session::handleGoodRequest(httpRequest_, httpResponse_);
+      } else {
+        session::handleBadRequest(httpRequest_, httpResponse_);
+      }
       
-      string res = httpResponse.to_string();
+      string res = httpResponse_.to_string();
 
       const char* chars = res.c_str();
 
@@ -79,27 +105,6 @@ void session::handle_read(const boost::system::error_code& error,
   }
 }
 
-void session::handle() {
-  this->httpResponse.version = this->httpRequest.version;
-  this->httpResponse.status_code = 200;
-  httpResponse.headers.push_back("Content-Type: text/plain");
-  //std::cout<<"handle1"<< std::endl;
-  // Copy whole request into response body
-  string body = httpRequest.to_string();
-  //std::cout<<"handle2"<< std::endl;
-  //cout << body << endl;
-  //std::cout<<"handle3"<< std::endl;
-  httpResponse.body = string(body.begin(), body.end());
-}
-
-void session::handleBadRequest() {
-  this->httpResponse.version = this->httpRequest.version;
-  this->httpResponse.status_code = 400;
-  httpResponse.headers.push_back("Content-Type: text/plain");
-  string body = httpRequest.to_string();
-  httpResponse.body = string(body.begin(), body.end());
-}
-
 void session::handle_write(const boost::system::error_code& error)
 {
   if (!error)
@@ -115,3 +120,5 @@ void session::handle_write(const boost::system::error_code& error)
     delete this;
   }
 }
+
+#pragma endregion

@@ -23,7 +23,7 @@ string HttpResponse::to_string() {
         status = "OK";
         break;
     case 400:
-        status = "BAD REQUEST";
+        status = "Bad Request";
         break;
     }
 

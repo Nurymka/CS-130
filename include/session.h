@@ -18,20 +18,23 @@ class session {
     session(boost::asio::io_service& io_service);
     tcp::socket& socket();
     void start();
-    HttpRequest httpRequest;
-    HttpResponse httpResponse;
+
+  protected:
+    HttpRequest httpRequest_;
+    HttpResponse httpResponse_;
     
   private:
+    static void handleGoodRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
+    static void handleBadRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
+
     void handle_read(const boost::system::error_code& error,
       size_t bytes_transferred);
     void handle_write(const boost::system::error_code& error);
 
-    void handle();
-    void handleBadRequest();
     tcp::socket socket_;
 
     char _buffer[buffer_length];
-    vector<char> input;
+    vector<char> input_;
 };
 
 #endif
