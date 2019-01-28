@@ -1,0 +1,6 @@
+http {
+  server {
+    write 50;
+    listen 80;
+  }
+}

@@ -31,7 +31,7 @@ string HttpResponse::to_string() {
     for(auto const &value: headers) {
     oss << value << "\r\n";
     }
-    int contentLength = escaped.size() + 2 ;
+    int contentLength = escaped.size() + 2;
     oss << "Content-Length: " << contentLength << "\r\n";
     oss << "\r\n";
     oss << escaped;

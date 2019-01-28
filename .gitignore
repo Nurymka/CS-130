@@ -4,6 +4,6 @@ build
 build_*
 mirror
 test
+tools
 .idea
 cmake-build-debug
-tools

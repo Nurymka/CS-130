@@ -24,28 +24,33 @@ bool HttpRequest::parse(const string& data) {
       if (state == START_LINE) {
           vector<string> tokens = split_str(line, ' ');
           if(tokens.size() != 3) {
+            cout << "==========T" << "\\" + line << endl;
             return false;
           }
           method = tokens[0];
-          if(method != "GET" || method != "PUT" || method != "PATCH" || method != "DELETE") {
+          if(method.compare("GET") != 0 && method.compare("PUT") != 0 
+            && method.compare("PATCH") != 0 && method.compare("DELETE") != 0
+              && method.compare("POST") != 0) {
+            cout << "==========M" << "\\" + method << endl;
             return false;
           }
           target = tokens[1];
           version = tokens[2];
           state = HEADERS;
       } else if (state == HEADERS) {
-          //cout << "==========" << "\\" + line << endl;
-          if (line.empty() || line == "\\n") {
+          // cout << "==========" << "\\" + line << endl;
+          if (line.empty() || line.compare("\n") == 0 || line.compare("\r\n") ==0 || line.compare("\r") == 0) {
             state = BODY;
+            cout << "==========" << "\\" + line << endl;
           } else {
             vector<string> headerStrs = split_str(line, ':');
             if(headerStrs.size() != 2 || headerStrs[1].at(0) != ' ') {
               return false;
             }
-            if(headerStrs[0] == "Content-Length") {
+            if(headerStrs[0].compare("Content-Length") == 0) {
               try {
-                string contentlength = headerStrs[1].substr(1, headerStrs[1].length());
-                this->contentLength = atoi((char*)contentLength);
+                string len = headerStrs[1].substr(1, headerStrs[1].length());
+                this->contentLength = atoi(len.c_str());
               } catch (exception const & e) {
                 return false;
               }
