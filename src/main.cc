@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
   {
     if (argc != 2)
     {
-      std::cerr << "Usage: async_tcp_echo_server <port>\n";
+      std::cerr << "Usage: server <port>\n";
       return 1;
     }
 
