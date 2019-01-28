@@ -70,6 +70,11 @@ gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SO
 gtest_discover_tests(http_request_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(http_response_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
+add_test(
+    NAME server_integration_test 
+    COMMAND /bin/bash ${CMAKE_CURRENT_SOURCE_DIR}/tests/server_integration_test.sh
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # TODO(!): Update with target/test targets
 # include(cmake/CodeCoverageReportConfig.cmake)
 # generate_coverage_report(TARGETS example_server example_lib TESTS example_lib_test)
