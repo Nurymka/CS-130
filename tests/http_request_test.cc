@@ -16,8 +16,8 @@ namespace {
         input += "Accept: */*\r\n";
         input += "Content-Length: 4\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
+        input += "\r\n";
+        input += "TEST";
         
         req.parse(input);
         EXPECT_EQ(req.method, "POST");
@@ -35,8 +35,8 @@ namespace {
         input += "Accept: */*\r\n";
         input += "Content-Length: 4\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
+        input += "\r\n";
+        input += "TEST";
         
         bool success = req.parse(input);
         EXPECT_FALSE(success);
@@ -50,8 +50,8 @@ namespace {
         input += "Accept: */*\r\n";
         input += "Content-Length: 4\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
+        input += "\r\n";
+        input += "TEST";
         
         bool success = req.parse(input);
         EXPECT_FALSE(success);
@@ -65,8 +65,8 @@ namespace {
         input += "Accept: */*\r\n";
         input += "Content-Length: 4\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
+        input += "\r\n";
+        input += "TEST";
         
         bool success = req.parse(input);
         EXPECT_FALSE(success);
@@ -80,8 +80,8 @@ namespace {
         input += "Accept:*/*\r\n";
         input += "Content-Length: 4\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
+        input += "\r\n";
+        input += "TEST";
         
         bool success = req.parse(input);
         EXPECT_FALSE(success);
@@ -95,23 +95,23 @@ namespace {
         input += "Accept: */*\r\n";
         input += "Content-Length: 4\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
+        input += "\r\n";
+        input += "TEST";
         
         req.parse(input);
         EXPECT_EQ(req.body.length(), 4);
     }
 
-    TEST_F(HttpRequestTest, IncorrectBodyLength) {
+    TEST_F(HttpRequestTest, ContentLengthLargerThanBodyLength) {
         string input;
         input += "POST / HTTP/1.1\r\n";
         input += "Host: localhost:8080\r\n";
         input += "User-Agent: curl/7.58.0\r\n";
         input += "Accept: */*\r\n";
-        input += "Content-Length: 3\r\n";
+        input += "Content-Length: 5\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
+        input += "\r\n";
+        input += "TEST";
         
         bool success = req.parse(input);
         EXPECT_FALSE(success);
@@ -123,7 +123,6 @@ namespace {
         input += "Host: localhost:8080\r\n";
         input += "User-Agent: curl/7.58.0\r\n";
         input += "Accept: */*\r\n";
-        input += "\n";
         input += "\r\n";
         
         bool success = req.parse(input);
@@ -138,7 +137,6 @@ namespace {
         input += "Accept: */*\r\n";
         input += "Content-Length: 0\r\n";
         input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
         input += "\r\n";
         
         bool success = req.parse(input);

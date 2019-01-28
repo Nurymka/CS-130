@@ -21,10 +21,13 @@ bool HttpRequest::parse(const string& data) {
     string line;
 
     ParseState state = START_LINE;
+    contentLength = 0;
+
     while(getline(input, line)) {
-      line = clean_str(line);
+      line.append("\n"); // add back new-line
+      string cleanLine = clean_str(line);
       if (state == START_LINE) {
-          vector<string> tokens = split_str(line, " ");
+          vector<string> tokens = split_str(cleanLine, " ");
           if(tokens.size() != 3) {
             return false;
           }
@@ -38,10 +41,11 @@ bool HttpRequest::parse(const string& data) {
           version = tokens[2];
           state = HEADERS;
       } else if (state == HEADERS) {
-          if (line.empty() || line.compare("\n") == 0 || line.compare("\r\n") ==0 || line.compare("\r") == 0) {
+          if (line.compare("\r\n") == 0) {
             state = BODY;
+            break;
           } else {
-            vector<string> headerStrs = split_str(line, ":");
+            vector<string> headerStrs = split_str(cleanLine, ":");
             // header should be of format 'NAME: VALUE'
             if (headerStrs.size() < 1 || headerStrs[1].at(0) != ' ') {
               return false;
@@ -49,22 +53,29 @@ bool HttpRequest::parse(const string& data) {
             if(headerStrs[0].compare("Content-Length") == 0) {
               try {
                 string len = headerStrs[1].substr(1, headerStrs[1].length());
-                this->contentLength = atoi(len.c_str());
+                contentLength = atoi(len.c_str());
               } catch (exception const & e) {
                 return false;
               }
             }
-            headers.push_back(line);
+            headers.push_back(cleanLine);
           }
-      } else {
-          if (!body.empty()) {
-          body.append("\r\n");
-          }
-          body.append(line);
       }
     }
-    if(body.length() != contentLength) {
-      return false;
+    if (state == BODY) {
+      int bodyRead = 0;
+      char c;
+      while (bodyRead < contentLength && input.get(c)) {
+        body += c;
+        bodyRead++;
+      }
+      // if body length is less than specified content-length should this be error?
+      // Example, could be seen as data loss/incomplete transfer.
+      // body length greater than specified content-length is NOT treated as error
+      // (simply ignore any message content greater than specified content-length)
+      if(body.length() != contentLength) {
+        return false;
+      }
     }
     return true;
 }
