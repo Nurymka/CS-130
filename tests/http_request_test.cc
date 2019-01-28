@@ -74,21 +74,6 @@ namespace {
 
     TEST_F(HttpRequestTest, InvalidHeader2) {
         string input;
-        input += "POST / HTTP/1.1\r\n";
-        input += "Host:localhost:8080\r\n";
-        input += "User-Agent: curl/7.58.0\r\n";
-        input += "Accept: */* :2\r\n";
-        input += "Content-Length: 4\r\n";
-        input += "Content-Type: application/x-www-form-urlencoded\r\n";
-        input += "\n";
-        input += "TEST\r\n";
-        
-        bool success = req.parse(input);
-        EXPECT_FALSE(success);
-    }
-
-    TEST_F(HttpRequestTest, InvalidHeader3) {
-        string input;
         input += "POST/ HTTP/1.1\r\n";
         input += "Host:localhost:8080\r\n";
         input += "User-Agent: curl/7.58.0\r\n";
@@ -114,7 +99,7 @@ namespace {
         input += "TEST\r\n";
         
         req.parse(input);
-        EXPECT_EQ(req.body.length(), 6);
+        EXPECT_EQ(req.body.length(), 4);
     }
 
     TEST_F(HttpRequestTest, IncorrectBodyLength) {
@@ -134,12 +119,10 @@ namespace {
 
     TEST_F(HttpRequestTest, EmptyBody) {
         string input;
-        input += "POST / HTTP/1.1\r\n";
+        input += "GET / HTTP/1.1\r\n";
         input += "Host: localhost:8080\r\n";
         input += "User-Agent: curl/7.58.0\r\n";
         input += "Accept: */*\r\n";
-        input += "Content-Length: 2\r\n";
-        input += "Content-Type: application/x-www-form-urlencoded\r\n";
         input += "\n";
         input += "\r\n";
         

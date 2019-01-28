@@ -52,6 +52,7 @@ void session::handle_read(const boost::system::error_code& error,
       string str(input.begin(), input.end());
       //std::cout<<"bytes_transferredstd < buffer_len -1"<<std::endl;
       bool success = httpRequest.parse(str);
+      std::cout << str;
 
       handle();
       

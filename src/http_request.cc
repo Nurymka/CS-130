@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 #include "http_request.h"
 
 using namespace std;
@@ -21,30 +22,28 @@ bool HttpRequest::parse(const string& data) {
 
     ParseState state = START_LINE;
     while(getline(input, line)) {
+      line = clean_str(line);
       if (state == START_LINE) {
-          vector<string> tokens = split_str(line, ' ');
+          vector<string> tokens = split_str(line, " ");
           if(tokens.size() != 3) {
-            cout << "==========T" << "\\" + line << endl;
             return false;
           }
           method = tokens[0];
           if(method.compare("GET") != 0 && method.compare("PUT") != 0 
             && method.compare("PATCH") != 0 && method.compare("DELETE") != 0
               && method.compare("POST") != 0) {
-            cout << "==========M" << "\\" + method << endl;
             return false;
           }
           target = tokens[1];
           version = tokens[2];
           state = HEADERS;
       } else if (state == HEADERS) {
-          // cout << "==========" << "\\" + line << endl;
           if (line.empty() || line.compare("\n") == 0 || line.compare("\r\n") ==0 || line.compare("\r") == 0) {
             state = BODY;
-            cout << "==========" << "\\" + line << endl;
           } else {
-            vector<string> headerStrs = split_str(line, ':');
-            if(headerStrs.size() != 2 || headerStrs[1].at(0) != ' ') {
+            vector<string> headerStrs = split_str(line, ":");
+            // header should be of format 'NAME: VALUE'
+            if (headerStrs.size() < 1 || headerStrs[1].at(0) != ' ') {
               return false;
             }
             if(headerStrs[0].compare("Content-Length") == 0) {
@@ -59,7 +58,7 @@ bool HttpRequest::parse(const string& data) {
           }
       } else {
           if (!body.empty()) {
-          body.append("\\r\\n");
+          body.append("\r\n");
           }
           body.append(line);
       }
@@ -76,24 +75,22 @@ string HttpRequest::to_string() {
     for(auto const &header: headers) {
     oss << header << "\r\n";
     }
-    //oss << "\r\n";
-    //oss << body;
-    //cout << "==========" << endl << body << endl << "=======" << endl;
+    oss << "\r\n";
+    oss << body;
     return oss.str();
 }
 
-vector<string> HttpRequest::split_str(const string& s, char c) {
+vector<string> HttpRequest::split_str(const string& s, string c) {
     vector<string> v;
-    string::size_type i = 0;
-    string::size_type j = s.find(c);
-
-    while (j != string::npos) {
-        v.push_back(s.substr(i, j-i));
-        i = ++j;
-        j = s.find(c, j);
-
-        if (j == string::npos)
-        v.push_back(s.substr(i, s.length() - i - 1));
-    }
+    boost::algorithm::split(v, s, boost::is_any_of(c));
     return v;
+}
+
+string HttpRequest::clean_str(string s) {
+  if (!s.empty() && s[s.size() - 1] == '\n')
+    s.erase(s.size() - 1);
+  if (!s.empty() && s[s.size() - 1] == '\r') {
+    s.erase(s.size() - 1);
+  }
+  return s;
 }

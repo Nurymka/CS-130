@@ -42,6 +42,7 @@ add_library(config_parser_lib src/config_parser.cc)
 add_library(http_request_lib src/http_request.cc)
 add_library(http_response_lib src/http_response.cc)
 
+target_link_libraries(http_request_lib Boost::system session_lib)
 target_link_libraries(session_lib Boost::system http_request_lib http_response_lib)
 target_link_libraries(server_lib Boost::system session_lib)
 

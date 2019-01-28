@@ -36,7 +36,9 @@ class HttpRequest {
     string to_string();
 
   private:
-    vector<string> split_str(const string& s, char c);
+    vector<string> split_str(const string& s, string c);
+
+    string clean_str(string s);
 
     enum ParseState {
       START_LINE = 0,

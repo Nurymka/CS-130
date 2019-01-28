@@ -12,6 +12,7 @@ using namespace std;
 //https://en.cppreference.com/w/cpp/string/basic_string/replace
 //http://www.cplusplus.com/forum/beginner/71782/
 //https://github.com/curl/curl/issues/232
+//https://stackoverflow.com/questions/2528995/remove-r-from-a-string-in-c
 
 string HttpResponse::to_string() {
     string escaped = escape(body);
@@ -31,10 +32,9 @@ string HttpResponse::to_string() {
     for(auto const &value: headers) {
     oss << value << "\r\n";
     }
-    int contentLength = escaped.size() + 2;
+    int contentLength = escaped.size();
     oss << "Content-Length: " << contentLength << "\r\n";
     oss << "\r\n";
     oss << escaped;
-    oss << "\r\n";
     return oss.str();
 }

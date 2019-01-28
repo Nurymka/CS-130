@@ -17,9 +17,9 @@ namespace {
         string output;
         output += "HTTP/1.1 200 OK\r\n";
         output += "Host: localhost:8080\r\n";
-        output += "Content-Length: 6\r\n";
+        output += "Content-Length: 4\r\n";
         output += "\r\n";
-        output += "TEST\r\n";
+        output += "TEST";
         
         EXPECT_EQ(res.to_string(), output);
     }
