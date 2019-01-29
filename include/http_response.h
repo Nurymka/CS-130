@@ -22,9 +22,10 @@ class HttpResponse {
     string body;
 
     string to_string();
+    
+    static const string kBadRequestMessage; 
   private:
     string escape(string input) {
-      
       return input;
     }
 };

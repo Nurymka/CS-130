@@ -64,11 +64,15 @@ target_link_libraries(http_request_test http_request_lib gtest_main)
 add_executable(http_response_test tests/http_response_test.cc)
 target_link_libraries(http_response_test http_response_lib gtest_main)
 
+add_executable(session_test tests/session_test.cc)
+target_link_libraries(session_test http_request_lib session_lib gtest_main)
+
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(http_request_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(http_response_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(session_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 add_test(
     NAME server_integration_test 

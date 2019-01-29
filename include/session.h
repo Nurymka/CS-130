@@ -19,14 +19,14 @@ class session {
     tcp::socket& socket();
     void start();
 
+    static void handleGoodRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
+    static void handleBadRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
+
   protected:
     HttpRequest httpRequest_;
     HttpResponse httpResponse_;
     
   private:
-    static void handleGoodRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
-    static void handleBadRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
-
     void handle_read(const boost::system::error_code& error,
       size_t bytes_transferred);
     void handle_write(const boost::system::error_code& error);

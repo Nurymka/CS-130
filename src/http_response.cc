@@ -7,6 +7,9 @@
 
 using namespace std;
 
+const string HttpResponse::kBadRequestMessage =
+    "Your client sent an invalid request to the server.\r\nPlease check for syntax errors and make sure the client is forming HTTP/1.1 requests";
+
 // part of the codes adapted or inspired from following urls:
 //https://stackoverflow.com/questions/2417588/escaping-a-c-string
 //https://en.cppreference.com/w/cpp/string/basic_string/replace
@@ -16,7 +19,7 @@ using namespace std;
 
 string HttpResponse::to_string() {
     string escaped = escape(body);
-
+    
     string status;
     switch(status_code) {
     case 200:
@@ -28,7 +31,7 @@ string HttpResponse::to_string() {
     }
 
     std::ostringstream oss;
-    oss << version.c_str() << " " << std::to_string(status_code) << " " << status << "\r\n";
+    oss << version << " " << std::to_string(status_code) << " " << status << "\r\n";
     for(auto const &value: headers) {
     oss << value << "\r\n";
     }

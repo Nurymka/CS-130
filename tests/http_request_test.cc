@@ -19,7 +19,8 @@ namespace {
         input += "\r\n";
         input += "TEST";
         
-        req.parse(input);
+        bool success = req.parse(input);
+        EXPECT_TRUE(success);
         EXPECT_EQ(req.method, "POST");
         EXPECT_EQ(req.target, "/");
         EXPECT_EQ(req.version, "HTTP/1.1");

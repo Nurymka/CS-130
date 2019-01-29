@@ -27,16 +27,14 @@ void session::handleGoodRequest(HttpRequest& httpRequest, HttpResponse& httpResp
   httpResponse.version = httpRequest.version;
   httpResponse.status_code = 200;
   httpResponse.headers.push_back("Content-Type: text/plain");
-  string body = httpRequest.to_string();
-  httpResponse.body = string(body.begin(), body.end());
+  httpResponse.body = httpRequest.to_string();
 }
 
 void session::handleBadRequest(HttpRequest& httpRequest, HttpResponse& httpResponse) {
-  httpResponse.version = httpRequest.version;
+  httpResponse.version = "HTTP/1.1";
   httpResponse.status_code = 400;
   httpResponse.headers.push_back("Content-Type: text/plain");
-  string body = httpRequest.to_string();
-  httpResponse.body = string(body.begin(), body.end());
+  httpResponse.body = HttpResponse::kBadRequestMessage; 
 }
 
 #pragma endregion
@@ -83,7 +81,7 @@ void session::handle_read(const boost::system::error_code& error,
       }
       
       string res = httpResponse_.to_string();
-
+  
       const char* chars = res.c_str();
 
       std::cout<<res<< std::endl;
