@@ -46,6 +46,8 @@ bool HttpRequest::parse(const string& data) {
           }
           _target = tokens[1];
           _version = tokens[2];
+          if (_version.compare("HTTP/1.1") != 0)
+            return false;
           state = HEADERS;
       } else if (state == HEADERS) {
           if (line.compare("\r\n") == 0) {
@@ -90,6 +92,7 @@ bool HttpRequest::parse(const string& data) {
     version = _version;
     headers = _headers;
     body = _body;
+    contentLength = _contentLength;
 
     return true;
 }
