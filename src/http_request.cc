@@ -20,8 +20,15 @@ bool HttpRequest::parse(const string& data) {
     std::istringstream input(data);
     string line;
 
+    // Not assigning directly to the instance methods to preserve atomicity during parsing
+    string _method;
+    string _target;
+    string _version;
+    vector<string> _headers;
+    string _body;
+    int _contentLength = 0;
+
     ParseState state = START_LINE;
-    contentLength = 0;
 
     while(getline(input, line)) {
       line.append("\n"); // add back new-line
@@ -31,14 +38,14 @@ bool HttpRequest::parse(const string& data) {
           if(tokens.size() != 3) {
             return false;
           }
-          method = tokens[0];
-          if(method.compare("GET") != 0 && method.compare("PUT") != 0 
-            && method.compare("PATCH") != 0 && method.compare("DELETE") != 0
-              && method.compare("POST") != 0) {
+          _method = tokens[0];
+          if(_method.compare("GET") != 0 && _method.compare("PUT") != 0 
+            && _method.compare("PATCH") != 0 && _method.compare("DELETE") != 0
+              && _method.compare("POST") != 0) {
             return false;
           }
-          target = tokens[1];
-          version = tokens[2];
+          _target = tokens[1];
+          _version = tokens[2];
           state = HEADERS;
       } else if (state == HEADERS) {
           if (line.compare("\r\n") == 0) {
@@ -53,30 +60,37 @@ bool HttpRequest::parse(const string& data) {
             if(headerStrs[0].compare("Content-Length") == 0) {
               try {
                 string len = headerStrs[1].substr(1, headerStrs[1].length());
-                contentLength = atoi(len.c_str());
+                _contentLength = atoi(len.c_str());
               } catch (exception const & e) {
                 return false;
               }
             }
-            headers.push_back(cleanLine);
+            _headers.push_back(cleanLine);
           }
       }
     }
     if (state == BODY) {
       int bodyRead = 0;
       char c;
-      while (bodyRead < contentLength && input.get(c)) {
-        body += c;
+      while (bodyRead < _contentLength && input.get(c)) {
+        _body += c;
         bodyRead++;
       }
       // if body length is less than specified content-length should this be error?
       // Example, could be seen as data loss/incomplete transfer.
       // body length greater than specified content-length is NOT treated as error
       // (simply ignore any message content greater than specified content-length)
-      if(body.length() != contentLength) {
+      if(_body.length() != _contentLength) {
         return false;
       }
     }
+
+    method = _method;
+    target = _target;
+    version = _version;
+    headers = _headers;
+    body = _body;
+
     return true;
 }
 
