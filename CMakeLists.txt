@@ -41,10 +41,13 @@ add_library(session_lib src/session.cc)
 add_library(config_parser_lib src/config_parser.cc)
 add_library(http_request_lib src/http_request.cc)
 add_library(http_response_lib src/http_response.cc)
+add_library(echo_handler_lib src/echo_handler.cc)
+add_library(handler_manager_lib src/handler_manager.cc)
 
 target_link_libraries(http_request_lib Boost::system session_lib)
-target_link_libraries(session_lib Boost::system http_request_lib http_response_lib)
+target_link_libraries(session_lib Boost::system http_request_lib http_response_lib handler_manager_lib)
 target_link_libraries(server_lib Boost::system session_lib)
+target_link_libraries(handler_manager_lib echo_handler_lib)
 
 # TODO(!): Update executable name, srcs, and deps
 # add_executable(example_server src/example_server_main.cc)
@@ -67,12 +70,16 @@ target_link_libraries(http_response_test http_response_lib gtest_main)
 add_executable(session_test tests/session_test.cc)
 target_link_libraries(session_test http_request_lib session_lib gtest_main)
 
+add_executable(echo_handler_test tests/echo_handler_test.cc)
+target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_handler_lib gtest_main)
+
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(http_request_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(http_response_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(session_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(echo_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 add_test(
     NAME server_integration_test 

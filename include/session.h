@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include "http_request.h"
 #include "http_response.h"
+#include "handler_manager.h"
 
 #ifndef SESSION_H
 #define SESSION_H
@@ -18,14 +19,8 @@ class session {
     session(boost::asio::io_service& io_service);
     tcp::socket& socket();
     void start();
+    static HttpResponse handle_bad_request();
 
-    static void handleGoodRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
-    static void handleBadRequest(HttpRequest& httpRequest, HttpResponse& httpResponse);
-
-  protected:
-    HttpRequest httpRequest_;
-    HttpResponse httpResponse_;
-    
   private:
     void handle_read(const boost::system::error_code& error,
       size_t bytes_transferred);
@@ -35,6 +30,9 @@ class session {
 
     char _buffer[buffer_length];
     vector<char> input_;
+
+    HandlerManager handlerManager_;
+
 };
 
 #endif

@@ -10,11 +10,13 @@
 
 #include <cstdlib>
 #include <iostream>
+
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "session.h"
 #include "http_request.h"
 #include "http_response.h"
+#include "handler_manager.h"
 
 // refactored session class from server_main.cc
 // part of the codes adapted or inspired from following urls:
@@ -23,18 +25,14 @@
 
 #pragma region Static Methods
 
-void session::handleGoodRequest(HttpRequest& httpRequest, HttpResponse& httpResponse) {
-  httpResponse.version = httpRequest.version;
-  httpResponse.status_code = 200;
-  httpResponse.headers.push_back("Content-Type: text/plain");
-  httpResponse.body = httpRequest.to_string();
-}
+HttpResponse session::handle_bad_request() {
+  HttpResponse res;
+  res.version = "HTTP/1.1";
+  res.status_code = 400;
+  res.headers.push_back("Content-Type: text/plain");
+  res.body = HttpResponse::kBadRequestMessage; 
 
-void session::handleBadRequest(HttpRequest& httpRequest, HttpResponse& httpResponse) {
-  httpResponse.version = "HTTP/1.1";
-  httpResponse.status_code = 400;
-  httpResponse.headers.push_back("Content-Type: text/plain");
-  httpResponse.body = HttpResponse::kBadRequestMessage; 
+  return res;
 }
 
 #pragma endregion
@@ -71,22 +69,24 @@ void session::handle_read(const boost::system::error_code& error,
       
       string str(input_.begin(), input_.end());
       //std::cout<<"bytes_transferredstd < buffer_len -1"<<std::endl;
-      bool success = httpRequest_.parse(str);
+      HttpRequest req;
+      HttpResponse res;
+      bool success = req.parse(str);
       std::cout << str;
 
       if (success) {
-        session::handleGoodRequest(httpRequest_, httpResponse_);
+        res = handlerManager_.handle_request(req);
       } else {
-        session::handleBadRequest(httpRequest_, httpResponse_);
+        res = session::handle_bad_request();
       }
       
-      string res = httpResponse_.to_string();
-  
-      const char* chars = res.c_str();
+      string responseStr = res.to_string();
+      
+      const char* chars = responseStr.c_str();
 
-      std::cout<<res<< std::endl;
+      std::cout<<responseStr<< std::endl;
       boost::asio::async_write(socket_,
-        boost::asio::buffer(chars, res.length()),
+        boost::asio::buffer(chars, responseStr.length()),
         boost::bind(&session::handle_write, this,
           boost::asio::placeholders::error));
     } else {
