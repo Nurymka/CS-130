@@ -41,12 +41,14 @@ add_library(session_lib src/session.cc)
 add_library(config_parser_lib src/config_parser.cc)
 add_library(http_request_lib src/http_request.cc)
 add_library(http_response_lib src/http_response.cc)
-add_library(echo_handler_lib src/echo_handler.cc)
+add_library(echo_handler_lib include/handler.h src/echo_handler.cc)
 add_library(handler_manager_lib src/handler_manager.cc)
 
+target_link_libraries(config_parser_lib echo_handler_lib)
 target_link_libraries(http_request_lib Boost::system session_lib)
 target_link_libraries(session_lib Boost::system http_request_lib http_response_lib handler_manager_lib)
 target_link_libraries(server_lib Boost::system session_lib)
+target_link_libraries(echo_handler_lib http_request_lib http_response_lib)
 target_link_libraries(handler_manager_lib echo_handler_lib)
 
 # TODO(!): Update executable name, srcs, and deps

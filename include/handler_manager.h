@@ -1,4 +1,4 @@
-#include <map>
+#include <unordered_map>
 #include <string>
 #include "http_request.h"
 #include "http_response.h"
@@ -11,11 +11,13 @@ using namespace std;
 
 class HandlerManager {
   public:
+    HandlerManager(unordered_map<string, Handler*> targetToHandler);
+    ~HandlerManager();
     HttpResponse handle_request(HttpRequest req);
   
   private:
     // TODO: initialize target to handler mapping from config parsing
-    map<string, Handler*> targetToHandler;
+    unordered_map<string, Handler*> targetToHandler_;
 };
 
 #endif

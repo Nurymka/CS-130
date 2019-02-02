@@ -7,11 +7,16 @@
 #include <memory>
 #include <stack>
 #include <cstring>
+#include <unordered_map>
 
 #include "config_parser.h"
+#include "handler.h"
+#include "echo_handler.h"
 
-std::string NginxConfig::ToString(int depth) {
-  std::string serialized_config;
+using namespace std;
+
+string NginxConfig::ToString(int depth) {
+  string serialized_config;
   for (const auto& statement : statements_) {
     serialized_config.append(statement->ToString(depth));
   }
@@ -21,19 +26,19 @@ std::string NginxConfig::ToString(int depth) {
 // Added a function that searches for portNumber in statements_
 int NginxConfig::getPort(){
   for (const auto& statement : statements_) {
-    std::string token_str = statement->tokens_[0];
-    if(std::strcmp(&token_str[0], "http") == 0){
+    string token_str = statement->tokens_[0];
+    if(strcmp(&token_str[0], "http") == 0){
       NginxConfig http = *(statement->child_block_);
       int httpPort = http.getPort();
       if(httpPort != 0) return httpPort;
     }
-    if(std::strcmp(&token_str[0], "server") == 0){
+    if(strcmp(&token_str[0], "server") == 0){
       NginxConfig server = *(statement.get()->child_block_);
       int serverPort = server.getPort();
       if(serverPort != 0) return serverPort;
     }
-    if(std::strcmp(&token_str[0], "listen") == 0){
-      std::stringstream listenString(statement->tokens_[1]); 
+    if(strcmp(&token_str[0], "listen") == 0){
+      stringstream listenString(statement->tokens_[1]); 
       int listen = 0;
       listenString >> listen; 
       return listen;
@@ -42,8 +47,38 @@ int NginxConfig::getPort(){
   return -1;
 }
 
-std::string NginxConfigStatement::ToString(int depth) {
-  std::string serialized_statement;
+unordered_map<string, Handler*> NginxConfig::getTargetToHandler() {
+  unordered_map<string, Handler*> targetToHandler;
+
+  for (const auto& statement : statements_) {
+    vector<string> tokens = statement->tokens_;
+    if (tokens[0] == "http" || tokens[0] == "server") {
+      NginxConfig childConfig = *(statement->child_block_);
+      unordered_map<string, Handler*> childMap = childConfig.getTargetToHandler();
+      if(childMap.size() > 0) {
+        return childMap;
+      }
+    }
+    else if (tokens.size() > 1 && tokens[0] == "location") {
+      string target = tokens[1];
+      string type;
+      
+      for (const auto& childStatement : statement->child_block_->statements_) {
+        vector<string> childTokens = childStatement->tokens_;
+        if (childTokens[0] == "echo") {
+          targetToHandler[target] = (Handler*)(new EchoHandler());
+        }
+        if (childTokens.size() > 1 && (tokens[0] == "alias" || tokens[0] == "root")) {
+          // TODO: add static file handler here
+        }
+      }
+    }
+  }
+  return targetToHandler;
+}
+
+string NginxConfigStatement::ToString(int depth) {
+  string serialized_statement;
   for (int i = 0; i < depth; ++i) {
     serialized_statement.append("  ");
   }
@@ -81,8 +116,8 @@ const char* NginxConfigParser::TokenTypeAsString(TokenType type) {
   }
 }
 
-NginxConfigParser::TokenType NginxConfigParser::ParseToken(std::istream* input,
-                                                           std::string* value) {
+NginxConfigParser::TokenType NginxConfigParser::ParseToken(istream* input,
+                                                           string* value) {
   TokenParserState state = TOKEN_STATE_INITIAL_WHITESPACE;
   while (input->good()) {
     const char c = input->get();
@@ -171,15 +206,15 @@ NginxConfigParser::TokenType NginxConfigParser::ParseToken(std::istream* input,
   return TOKEN_TYPE_EOF;
 }
 
-bool NginxConfigParser::Parse(std::istream* config_file, NginxConfig* config) {
-  std::stack<NginxConfig*> config_stack;
+bool NginxConfigParser::Parse(istream* config_file, NginxConfig* config) {
+  stack<NginxConfig*> config_stack;
   config_stack.push(config);
   TokenType last_token_type = TOKEN_TYPE_START;
   TokenType token_type;
   int start_blocks = 0;
 
   while (true) {
-    std::string token;
+    string token;
     token_type = ParseToken(config_file, &token);
     //printf ("%s: %s\n", TokenTypeAsString(token_type), token.c_str());
     if (token_type == TOKEN_TYPE_ERROR) {
@@ -257,7 +292,7 @@ bool NginxConfigParser::Parse(std::istream* config_file, NginxConfig* config) {
 }
 
 bool NginxConfigParser::Parse(const char* file_name, NginxConfig* config) {
-  std::ifstream config_file;
+  ifstream config_file;
   config_file.open(file_name);
   if (!config_file.good()) {
     printf ("Failed to open config file: %s\n", file_name);
@@ -265,7 +300,7 @@ bool NginxConfigParser::Parse(const char* file_name, NginxConfig* config) {
   }
 
   const bool return_value =
-      Parse(dynamic_cast<std::istream*>(&config_file), config);
+      Parse(dynamic_cast<istream*>(&config_file), config);
   config_file.close();
   return return_value;
 }

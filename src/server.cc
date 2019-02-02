@@ -14,21 +14,28 @@
 #include <boost/asio.hpp>
 #include "session.h"
 #include "server.h"
+#include "handler_manager.h"
 
 // refactored server class from server_main.cc
 
-server::server(boost::asio::io_service& io_service, short port)
+server::server(boost::asio::io_service& io_service, short port,
+  HandlerManager* handlerManager)
   : io_service_(io_service),
-    acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
+    acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
+    handlerManager_(handlerManager)
 {
   start_accept();
   //std::cout<<"server"<< std::endl;
 }
 
+server::~server() {
+  delete handlerManager_;
+}
+
 void server::start_accept()
 {
   //std::cout<<"start_accept "<< std::endl;
-  session* new_session = new session(io_service_);
+  session* new_session = new session(io_service_, handlerManager_);
   acceptor_.async_accept(new_session->socket(),
     boost::bind(&server::handle_accept, this, new_session,
       boost::asio::placeholders::error));

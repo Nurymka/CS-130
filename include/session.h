@@ -16,7 +16,7 @@ const int buffer_length = 1024;
 
 class session {
   public:
-    session(boost::asio::io_service& io_service);
+    session(boost::asio::io_service& io_service, HandlerManager* handlerManager);
     tcp::socket& socket();
     void start();
     static HttpResponse handle_bad_request();
@@ -31,7 +31,7 @@ class session {
     char _buffer[buffer_length];
     vector<char> input_;
 
-    HandlerManager handlerManager_;
+    HandlerManager* handlerManager_;
 
 };
 

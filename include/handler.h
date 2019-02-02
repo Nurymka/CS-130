@@ -6,7 +6,7 @@
 
 class Handler {
   public:
-    virtual HttpResponse handle_request(HttpRequest req);
+    virtual HttpResponse handle_request(HttpRequest req) = 0;
 };
 
 #endif

@@ -39,8 +39,9 @@ HttpResponse session::handle_bad_request() {
 
 #pragma region Instance Methods
 
-session::session(boost::asio::io_service& io_service)
-    : socket_(io_service)
+session::session(boost::asio::io_service& io_service, HandlerManager* handlerManager)
+    : socket_(io_service),
+      handlerManager_(handlerManager)
 {
 }
 
@@ -75,7 +76,7 @@ void session::handle_read(const boost::system::error_code& error,
       std::cout << str;
 
       if (success) {
-        res = handlerManager_.handle_request(req);
+        res = handlerManager_->handle_request(req);
       } else {
         res = session::handle_bad_request();
       }

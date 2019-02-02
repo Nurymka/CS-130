@@ -12,9 +12,14 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <unordered_map>
 #include "server.h"
 #include "session.h"
 #include "config_parser.h"
+#include "handler.h"
+#include "handler_manager.h"
+
+using namespace std;
 
 int main(int argc, char* argv[])
 {
@@ -31,12 +36,12 @@ int main(int argc, char* argv[])
     NginxConfig config;
     config_parser.Parse(argv[1], &config);
     short portNumber = (short)config.getPort();
+    unordered_map<string, Handler*> targetToHandler = config.getTargetToHandler();
+    HandlerManager* handlerManager = new HandlerManager(targetToHandler);
     boost::asio::io_service io_service;
-
-    using namespace std; // For atoi.
     //std::cout<<"starting service at port"<< std::endl;
     //std::cout<<portNumber<< std::endl;
-    server s(io_service, portNumber);
+    server s(io_service, portNumber, handlerManager);
 
     io_service.run();
   }
