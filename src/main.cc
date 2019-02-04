@@ -25,6 +25,7 @@
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
+#include <boost/log/support/date_time.hpp>
 #include <unordered_map>
 #include "server.h"
 #include "session.h"
@@ -38,6 +39,7 @@ using namespace std;
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 namespace src = boost::log::sources;
+namespace expr = boost::log::expressions;
 namespace sinks = boost::log::sinks;
 
 void log_init()
@@ -45,10 +47,15 @@ void log_init()
 
   logging::add_file_log(
     keywords::file_name = "server_%Y%m%d.log",
+    keywords::format = "%TimeStamp%: Thread = %ThreadID%, %Message%",
     keywords::rotation_size = 10 * 1024 * 1024,
-    keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0));
+    keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0)
+  );
 
-  logging::add_console_log(std::cout, keywords::format = ">> %Message%");
+  logging::add_console_log(
+    std::cout, 
+    keywords::format = "%TimeStamp%: Thread = %ThreadID%, %Message%"    
+  );
 
 }
 
@@ -56,6 +63,7 @@ int main(int argc, char* argv[])
 {
   log_init();
   logging::add_common_attributes();
+  //logging::register_simple_formatter_factory< logging::trivial::severity_level, char >("Severity");
   src::severity_logger< severity_level > lg = server_log::get();
 
   try
@@ -63,7 +71,7 @@ int main(int argc, char* argv[])
 
     if (argc != 2)
     {
-      BOOST_LOG_SEV(lg, error) << "Wrong number of arguments for server initialization.\n";
+      BOOST_LOG_SEV(lg, error) << "<error>: Wrong number of arguments for server initialization.\n";
       //std::cerr << "Usage: server <port>\n";
       return 1;
     }
@@ -73,11 +81,11 @@ int main(int argc, char* argv[])
     NginxConfig config;
     if (config_parser.Parse(argv[1], &config) == false)
     {
-      BOOST_LOG_SEV(lg, error) << "Error encountered parsing config file.\n";
+      BOOST_LOG_SEV(lg, error) << "<error>: Error encountered parsing config file.\n";
     }
     short portNumber = (short)config.getPort();
     
-    BOOST_LOG_SEV(lg, info) << "Port number is: " << portNumber;
+    BOOST_LOG_SEV(lg, info) << "<info>: Port number is: " << portNumber;
 
     unordered_map<string, Handler*> targetToHandler = config.getTargetToHandler();
     HandlerManager* handlerManager = new HandlerManager(targetToHandler);

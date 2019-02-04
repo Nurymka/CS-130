@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/log/sources/logger.hpp>
 #include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/severity_feature.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
 #include "http_request.h"
 #include "http_response.h"
@@ -48,6 +49,5 @@ enum severity_level
 };
 
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(server_log, boost::log::sources::severity_logger< severity_level >)
-
 
 #endif
