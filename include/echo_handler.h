@@ -10,4 +10,9 @@ class EchoHandler : public Handler {
     HttpResponse handle_request(HttpRequest req);
 };
 
+class EchoHandlerMaker : public HandlerMaker {
+  public:
+    Handler* create();
+};
+
 #endif

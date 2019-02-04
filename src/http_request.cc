@@ -36,6 +36,7 @@ bool HttpRequest::parse(const string& data) {
       if (state == START_LINE) {
           vector<string> tokens = split_str(cleanLine, " ");
           if(tokens.size() != 3) {
+            cout << "==========T" << "\\" + line << endl;
             return false;
           }
           _method = tokens[0];

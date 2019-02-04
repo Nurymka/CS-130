@@ -3,4 +3,7 @@ http {
     write 50;
     listen 80;
   }
+  location /content/ {
+        root /usr/src/projects/iceberg-webserver/file/;
+  }
 }

@@ -12,6 +12,7 @@
 #include "config_parser.h"
 #include "handler.h"
 #include "echo_handler.h"
+#include "static_handler.h"
 
 using namespace std;
 
@@ -47,14 +48,14 @@ int NginxConfig::getPort(){
   return -1;
 }
 
-unordered_map<string, Handler*> NginxConfig::getTargetToHandler() {
-  unordered_map<string, Handler*> targetToHandler;
+unordered_map<string, HandlerMaker*> NginxConfig::getTargetToHandler() {
+  unordered_map<string, HandlerMaker*> targetToHandler;
 
   for (const auto& statement : statements_) {
     vector<string> tokens = statement->tokens_;
     if (tokens[0] == "http" || tokens[0] == "server") {
       NginxConfig childConfig = *(statement->child_block_);
-      unordered_map<string, Handler*> childMap = childConfig.getTargetToHandler();
+      unordered_map<string, HandlerMaker*> childMap = childConfig.getTargetToHandler();
       if(childMap.size() > 0) {
         return childMap;
       }
@@ -66,12 +67,14 @@ unordered_map<string, Handler*> NginxConfig::getTargetToHandler() {
       for (const auto& childStatement : statement->child_block_->statements_) {
         vector<string> childTokens = childStatement->tokens_;
         if (childTokens[0] == "echo") {
-          targetToHandler[target] = (Handler*)(new EchoHandler());
+          targetToHandler[target] = new EchoHandlerMaker();
         }
-        if (childTokens.size() > 1 && (tokens[0] == "alias" || tokens[0] == "root")) {
+        if (childTokens.size() > 1 && (childTokens[0] == "alias" || childTokens[0] == "root")) {
           // TODO: add static file handler here
+          targetToHandler[target] = new StaticHandlerMaker(childTokens[1], target);
         }
       }
+      std::cout << " size : " << targetToHandler.size() << std::endl;
     }
   }
   return targetToHandler;

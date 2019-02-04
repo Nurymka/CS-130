@@ -9,4 +9,9 @@ class Handler {
     virtual HttpResponse handle_request(HttpRequest req) = 0;
 };
 
+class HandlerMaker {
+  public:
+    virtual Handler* create() = 0;
+};
+
 #endif

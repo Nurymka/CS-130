@@ -28,6 +28,9 @@ string HttpResponse::to_string() {
     case 400:
         status = "Bad Request";
         break;
+    case 404:
+        status = "Not Found";
+        break;
     }
 
     std::ostringstream oss;

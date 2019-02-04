@@ -11,13 +11,13 @@ using namespace std;
 
 class HandlerManager {
   public:
-    HandlerManager(unordered_map<string, Handler*> targetToHandler);
+    HandlerManager(unordered_map<string, HandlerMaker*> targetToHandler);
     ~HandlerManager();
     HttpResponse handle_request(HttpRequest req);
   
   private:
     // TODO: initialize target to handler mapping from config parsing
-    unordered_map<string, Handler*> targetToHandler_;
+    unordered_map<string, HandlerMaker*> targetToHandler_;
 };
 
 #endif

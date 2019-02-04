@@ -13,3 +13,7 @@ HttpResponse EchoHandler::handle_request(HttpRequest req) {
   
   return res;
 }
+
+Handler* EchoHandlerMaker::create() {
+  return new EchoHandler();
+}

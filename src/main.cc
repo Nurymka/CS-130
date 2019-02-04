@@ -59,7 +59,7 @@ void log_init()
 
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) 
 {
   log_init();
   logging::add_common_attributes();
@@ -86,8 +86,8 @@ int main(int argc, char* argv[])
     short portNumber = (short)config.getPort();
     
     BOOST_LOG_SEV(lg, info) << "<info>: Port number is: " << portNumber;
-
-    unordered_map<string, Handler*> targetToHandler = config.getTargetToHandler();
+  
+    unordered_map<string, HandlerMaker*> targetToHandler = config.getTargetToHandler();
     HandlerManager* handlerManager = new HandlerManager(targetToHandler);
     boost::asio::io_service io_service;
     //std::cout<<"starting service at port"<< std::endl;

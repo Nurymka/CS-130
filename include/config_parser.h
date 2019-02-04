@@ -30,7 +30,7 @@ class NginxConfig {
   string ToString(int depth = 0);
   vector<shared_ptr<NginxConfigStatement>> statements_;
   int getPort();
-  unordered_map<string, Handler*> getTargetToHandler();
+  unordered_map<string, HandlerMaker*> getTargetToHandler();
 };
 
 // The driver that parses a config file and generates an NginxConfig.
