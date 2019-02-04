@@ -12,6 +12,19 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/setup/console.hpp>
+#include <boost/log/sources/severity_feature.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
+#include <boost/log/sinks/sync_frontend.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/sinks/text_ostream_backend.hpp>
 #include <unordered_map>
 #include "server.h"
 #include "session.h"
@@ -19,23 +32,54 @@
 #include "handler.h"
 #include "handler_manager.h"
 
+
 using namespace std;
+
+namespace logging = boost::log;
+namespace keywords = boost::log::keywords;
+namespace src = boost::log::sources;
+namespace sinks = boost::log::sinks;
+
+void log_init()
+{
+
+  logging::add_file_log(
+    keywords::file_name = "server_%Y%m%d.log",
+    keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0));
+
+  logging::add_console_log(std::cout, keywords::format = ">> %Message%");
+
+}
 
 int main(int argc, char* argv[])
 {
+  log_init();
+  logging::add_common_attributes();
+  src::severity_logger< severity_level > lg = server_log::get();
+
   try
   {
+
     if (argc != 2)
     {
-      std::cerr << "Usage: server <port>\n";
+      BOOST_LOG_SEV(lg, error) << "Wrong number of arguments for server initialization.\n";
+      //std::cerr << "Usage: server <port>\n";
       return 1;
     }
 
     // copied code from Assignment 1 to find out the portNumber from target config file
     NginxConfigParser config_parser;
     NginxConfig config;
-    config_parser.Parse(argv[1], &config);
+    if (config_parser.Parse(argv[1], &config) == false)
+    {
+      BOOST_LOG_SEV(lg, error) << "Error encountered parsing config file.\n";
+    }
     short portNumber = (short)config.getPort();
+    
+    BOOST_LOG_SEV(lg, info) << "Port number is: ";
+    BOOST_LOG_SEV(lg, info) << portNumber;
+    BOOST_LOG_SEV(lg, info) << "\n";
+
     unordered_map<string, Handler*> targetToHandler = config.getTargetToHandler();
     HandlerManager* handlerManager = new HandlerManager(targetToHandler);
     boost::asio::io_service io_service;

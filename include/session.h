@@ -2,6 +2,9 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/log/sources/logger.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/global_logger_storage.hpp>
 #include "http_request.h"
 #include "http_response.h"
 #include "handler_manager.h"
@@ -13,6 +16,7 @@ using boost::asio::ip::tcp;
 using namespace std;
 
 const int buffer_length = 1024;
+
 
 class session {
   public:
@@ -34,5 +38,16 @@ class session {
     HandlerManager* handlerManager_;
 
 };
+
+enum severity_level
+{
+    info,
+    warning,
+    error,
+    critical
+};
+
+BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(server_log, boost::log::sources::severity_logger< severity_level >)
+
 
 #endif
