@@ -45,6 +45,7 @@ void log_init()
 
   logging::add_file_log(
     keywords::file_name = "server_%Y%m%d.log",
+    keywords::rotation_size = 10 * 1024 * 1024,
     keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0));
 
   logging::add_console_log(std::cout, keywords::format = ">> %Message%");
@@ -76,9 +77,7 @@ int main(int argc, char* argv[])
     }
     short portNumber = (short)config.getPort();
     
-    BOOST_LOG_SEV(lg, info) << "Port number is: ";
-    BOOST_LOG_SEV(lg, info) << portNumber;
-    BOOST_LOG_SEV(lg, info) << "\n";
+    BOOST_LOG_SEV(lg, info) << "Port number is: " << portNumber;
 
     unordered_map<string, Handler*> targetToHandler = config.getTargetToHandler();
     HandlerManager* handlerManager = new HandlerManager(targetToHandler);
