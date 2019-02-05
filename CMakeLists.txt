@@ -106,5 +106,13 @@ generate_coverage_report(
     TESTS config_parser_lib_test http_request_test http_response_test session_test
 )
 
+include(cmake/CppLint.cmake)
+add_style_check_target(
+    TARGET_NAME lint
+    SOURCES_LIST
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/* 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/*)
+
 # Copies the server config folder
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/config DESTINATION ${CMAKE_BINARY_DIR})
