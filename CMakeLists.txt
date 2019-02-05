@@ -78,6 +78,9 @@ target_link_libraries(session_test http_request_lib session_lib gtest_main)
 add_executable(echo_handler_test tests/echo_handler_test.cc)
 target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_handler_lib gtest_main)
 
+add_executable(static_handler_test tests/static_handler_test.cc)
+target_link_libraries(static_handler_test http_request_lib http_response_lib static_handler_lib gtest_main)
+
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
@@ -85,6 +88,7 @@ gtest_discover_tests(http_request_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_
 gtest_discover_tests(http_response_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(session_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(echo_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(static_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 add_test(
     NAME server_integration_test 

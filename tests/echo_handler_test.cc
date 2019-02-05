@@ -1,7 +1,12 @@
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "echo_handler.h"
 #include "http_request.h"
 #include "http_response.h"
+
+using ::testing::StartsWith;
+using ::testing::HasSubstr;
+using ::testing::EndsWith;
 
 namespace {
   class EchoHandlerTest : public ::testing::Test {
@@ -21,18 +26,10 @@ namespace {
 
     req.parse(input);
     res = echoHandler.handle_request(req);
-    
-    string expected_res;
-    expected_res += "HTTP/1.1 200 OK\r\n";
-    expected_res += "Content-Type: text/plain\r\n";
-    expected_res += "Content-Length: 73\r\n";
-    expected_res += "\r\n";
-    expected_res += "GET / HTTP/1.1\r\n";
-    expected_res += "Host: localhost\r\n";
-    expected_res += "User-Agent: curl/7.58.0\r\n";
-    expected_res += "Accept: */*\r\n";
-    expected_res += "\r\n";
-    
-    EXPECT_EQ(res.to_string(), expected_res);
+
+    string responseStr = res.to_string();
+    EXPECT_THAT(responseStr, StartsWith("HTTP/1.1 200 OK\r\n"));
+    EXPECT_THAT(responseStr, HasSubstr("Content-Type: text/plain\r\n"));
+    EXPECT_THAT(responseStr, EndsWith(input)); 
   }
 }

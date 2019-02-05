@@ -48,7 +48,7 @@ HttpResponse StaticHandler::handle_request(HttpRequest req) {
     buffer << t.rdbuf();
 
     res.status_code = 200;
-    res.headers.push_back(get_mime_type(file_path));
+    res.headers.push_back("Content-Type: " + get_mime_type(file_path));
     res.body = buffer.str();
   }
   return res;
