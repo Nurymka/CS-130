@@ -5,8 +5,26 @@
 #include "http_request.h"
 #include "http_response.h"
 
+string StaticHandler::get_mime_type(string filename) {
+  int index = filename.rfind(".");
+  if (index != std::string::npos) {
+    string extension = filename.substr(index+1);
+    // https://stackoverflow.com/questions/3136520/determine-if-map-contains-a-value-for-a-key
+    if (EXT_TO_CONTENT_TYPE.find(extension) != EXT_TO_CONTENT_TYPE.end()) {
+      return EXT_TO_CONTENT_TYPE.at(extension);
+    }
+    else {
+      return DEFAULT_CONTENT_TYPE;
+    }
+  }
+  else {
+    return DEFAULT_CONTENT_TYPE;
+  }
+}
+
 HttpResponse StaticHandler::handle_request(HttpRequest req) {
   HttpResponse res;
+  res.version = req.version;
 
   std::string requestTarget = req.target;
 
@@ -24,12 +42,14 @@ HttpResponse StaticHandler::handle_request(HttpRequest req) {
   std::ifstream t(file_path);
   if (!t.good()) {
     res.status_code = 404;
-  } else {
+  }
+  else {
     std::stringstream buffer;
     buffer << t.rdbuf();
 
-    res.body = buffer.str();
     res.status_code = 200;
+    res.headers.push_back(get_mime_type(file_path));
+    res.body = buffer.str();
   }
   return res;
 }

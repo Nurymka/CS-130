@@ -27,13 +27,12 @@ HttpResponse HandlerManager::handle_request(HttpRequest req) {
   if (maker != NULL) {
     Handler* handler = maker->create();
     HttpResponse res = handler->handle_request(req);
-    //TODO: eed fix null pointer
-    //free(handler);
+    free(handler);
     return res;
   }
   else {
-    // TODO: return 404 not found
     HttpResponse res;
+    res.version = req.version;
     res.status_code = 404;
     return res;
   }
