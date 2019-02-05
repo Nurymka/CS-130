@@ -3,8 +3,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/log/sources/logger.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/severity_feature.hpp>
+#include <boost/log/sources/severity_logger.hpp> 
 #include <boost/log/sources/global_logger_storage.hpp>
 #include "http_request.h"
 #include "http_response.h"
