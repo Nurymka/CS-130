@@ -9,6 +9,12 @@ echo "
 http {
     server {
         listen $PORT_NO;
+        location /echo {
+            echo;
+        }
+        location /static {
+            root /usr/src/projects/iceberg-webserver/file/;
+        }
     }
 }
 " > "$TMP_CONFIG"
@@ -23,9 +29,9 @@ kill_server() {
 }
 
 # Run the tests
-echo "Testing 200 response to valid GET request..."
+echo "Testing 200 response to valid Echo GET request..."
 OUTPUT_FILE=test.out
-curl "$SERVER_URL" -sv &> "$OUTPUT_FILE"
+curl "$SERVER_URL/echo" -sv &> "$OUTPUT_FILE"
 cat "$OUTPUT_FILE" | grep "200 OK"
 
 if [ $? == 0 ];
@@ -33,6 +39,34 @@ then
     echo "SUCCESS...200 OK in response"
 else
     echo "FAILURE...200 OK not in response"
+    kill_server
+    exit 1
+fi
+
+echo "Testing 200 response to valid Static GET request..."
+OUTPUT_FILE=test.out
+curl "$SERVER_URL/static/index.html" -sv &> "$OUTPUT_FILE"
+cat "$OUTPUT_FILE" | grep "200 OK"
+
+if [ $? == 0 ];
+then
+    echo "SUCCESS...200 OK in response"
+else
+    echo "FAILURE...200 OK not in response"
+    kill_server
+    exit 1
+fi
+
+echo "Testing 404 response to valid Static GET request..."
+OUTPUT_FILE=test.out
+curl "$SERVER_URL/static/file_does_not_exist" -sv &> "$OUTPUT_FILE"
+cat "$OUTPUT_FILE" | grep "404 Not Found"
+
+if [ $? == 0 ];
+then
+    echo "SUCCESS...404 Not Found in response"
+else
+    echo "FAILURE...404 Not Found not in response"
     kill_server
     exit 1
 fi
