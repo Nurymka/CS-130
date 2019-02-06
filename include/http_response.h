@@ -24,7 +24,7 @@ class HttpResponse {
 
     string to_string();
 
-    static const string kBadRequestMessage;
+    static const char* kBadRequestMessage;
  private:
     string escape(string input) {
       return input;

@@ -7,8 +7,8 @@
 
 using namespace std;
 
-const string HttpResponse::kBadRequestMessage =
-    "Your client sent an invalid request to the server.\r\nPlease check for syntax errors and make sure the client is forming HTTP/1.1 requests";
+const char* HttpResponse::kBadRequestMessage =
+    "Your client sent an invalid request to the server.\r\nPlease check for syntax errors and make sure the client is forming HTTP/1.1 requests"; // NOLINT
 
 // part of the codes adapted or inspired from following urls:
 // https://stackoverflow.com/questions/2417588/escaping-a-c-string
