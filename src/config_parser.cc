@@ -73,7 +73,6 @@ unordered_map<string, HandlerMaker*> NginxConfig::getTargetToHandler() {
           targetToHandler[target] = new StaticHandlerMaker(childTokens[1], target);
         }
       }
-      std::cout << " size : " << targetToHandler.size() << std::endl;
     }
   }
   return targetToHandler;
