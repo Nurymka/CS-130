@@ -1,8 +1,8 @@
 ### Build/test container ###
 FROM iceberg-webserver:base as builder
 
-COPY . /usr/src/project
-WORKDIR /usr/src/project/build
+COPY . /usr/src/projects/iceberg-webserver/
+WORKDIR /usr/src/projects/iceberg-webserver/build
 
 RUN cmake ..
 RUN make
@@ -14,8 +14,12 @@ FROM ubuntu:latest as deploy
 
 # TODO(!): Copy server output binary to "."
 # COPY --from=builder /usr/src/project/build/bin/example_server .
-COPY --from=builder /usr/src/project/build/bin/server .
-COPY --from=builder /usr/src/project/build/config ./config
+COPY --from=builder /usr/src/projects/iceberg-webserver/build/bin/server .
+COPY --from=builder /usr/src/projects/iceberg-webserver/build/config ./config
+COPY --from=builder /usr/src/projects/iceberg-webserver/file1 /usr/src/projects/iceberg-webserver/file1
+COPY --from=builder /usr/src/projects/iceberg-webserver/file2 /usr/src/projects/iceberg-webserver/file2
+COPY --from=builder /usr/src/projects/iceberg-webserver/file2 /usr/src/projects/iceberg-webserver/file2
+COPY --from=builder /usr/src/projects/iceberg-webserver/tests/static_file /usr/src/projects/iceberg-webserver/tests/static_file
 
 # TODO(!): Expose some port(s)
 # EXPOSE 80
