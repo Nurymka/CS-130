@@ -106,6 +106,7 @@ generate_coverage_report(
     TARGETS server Boost::system server_lib session_lib config_parser_lib 
         http_request_lib http_response_lib
     TESTS config_parser_lib_test http_request_test http_response_test session_test
+        echo_handler_test static_handler_test
 )
 
 include(cmake/CppLint.cmake)
