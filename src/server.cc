@@ -14,6 +14,7 @@
 #include <boost/asio.hpp>
 #include "session.h"
 #include "server.h"
+#include "logger.h"
 #include "handler_manager.h"
 
 // refactored server class from server_main.cc
@@ -23,6 +24,7 @@ server::server(boost::asio::io_service& io_service, unsigned short port,
   : io_service_(io_service),
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
     handlerManager_(handlerManager) {
+  BOOST_LOG_SEV(Logger::get(), INFO) << "Server starting at port: " << port;
   start_accept();
 }
 
@@ -42,6 +44,9 @@ void server::handle_accept(session* new_session,
   if (!error) {
     new_session->start();
   } else {
+    BOOST_LOG_SEV(Logger::get(), ERROR)
+      << "Failed to establish new connection: "
+      << error.message();
     delete new_session;
   }
   start_accept();

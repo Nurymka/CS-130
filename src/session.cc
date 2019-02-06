@@ -17,6 +17,7 @@
 #include "http_request.h"
 #include "http_response.h"
 #include "handler_manager.h"
+#include "logger.h"
 
 // refactored session class from server_main.cc
 // part of the codes adapted or inspired from following urls:
@@ -52,30 +53,45 @@ void session::start() {
       boost::bind(&session::handle_read, this,
         boost::asio::placeholders::error,
         boost::asio::placeholders::bytes_transferred));
+  BOOST_LOG_SEV(Logger::get(), INFO)
+    << "Established connection with: "
+    << socket().remote_endpoint().address().to_string();
 }
 
 void session::handle_read(const boost::system::error_code& error,
       size_t bytes_transferred) {
+  string client_ip = socket().remote_endpoint().address().to_string();
+
   if (!error) {
-    // std::cout<<"handle_read start"<< std::endl;
+    BOOST_LOG_SEV(Logger::get(), INFO)
+      << "Starting to read bytes from "
+      << client_ip;
     int buffer_len = sizeof(_buffer);
     input_.assign(_buffer, _buffer + bytes_transferred);
     if (bytes_transferred < buffer_length) {
       string str(input_.begin(), input_.end());
-      // std::cout<<"bytes_transferredstd < buffer_len -1"<<std::endl;
+      BOOST_LOG_SEV(Logger::get(), INFO)
+        << "Read " << buffer_len - 1 << " bytes from " << client_ip;
+      BOOST_LOG_SEV(Logger::get(), INFO)
+        << "Raw request from " << client_ip << ":\n" << str;
       HttpRequest req;
       HttpResponse res;
       bool success = req.parse(str);
-      std::cout << str;
 
       if (success) {
+        BOOST_LOG_SEV(Logger::get(), INFO)
+          << "Handling valid request from " << client_ip;
         res = handlerManager_->handle_request(req);
       } else {
+        BOOST_LOG_SEV(Logger::get(), INFO)
+          << "Handling bad request from " << client_ip;
         res = session::handle_bad_request();
       }
       string responseStr = res.to_string();
       const char* chars = responseStr.c_str();
-      std::cout << responseStr << std::endl;
+      BOOST_LOG_SEV(Logger::get(), INFO)
+        << "Sending a response to " << client_ip
+        << " of size " << responseStr.length() << " bytes";
       boost::asio::async_write(socket_,
         boost::asio::buffer(chars, responseStr.length()),
         boost::bind(&session::handle_write, this,
@@ -87,19 +103,27 @@ void session::handle_read(const boost::system::error_code& error,
           boost::asio::placeholders::bytes_transferred));
     }
   } else {
-    // std::cout<<"handle_read error"<< std::endl;
+    BOOST_LOG_SEV(Logger::get(), ERROR)
+      << "Failed to read bytes from " << client_ip
+      << ": " << error.message();
     delete this;
   }
 }
 
 void session::handle_write(const boost::system::error_code& error) {
+  string client_ip = socket().remote_endpoint().address().to_string();
+
   if (!error) {
-    // std::cout<<"handle_write done"<< std::endl;
+    BOOST_LOG_SEV(Logger::get(), INFO)
+      << "Successfully wrote to " << client_ip
+      << ". Shutting down connection.";
     boost::system::error_code ignored_ec;
     socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both,
             ignored_ec);
   } else {
-    // std::cout<<"handle_write error"<< std::endl;
+    BOOST_LOG_SEV(Logger::get(), ERROR)
+      << "Failed to write bytes to " << client_ip
+      << ": " << error.message();
     delete this;
   }
 }
