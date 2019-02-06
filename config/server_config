@@ -1,5 +1,13 @@
 http {
   server {
     listen 80;
+
+    location /echo {
+      echo;
+    }
+
+    location /static {
+      root /usr/src/projects/iceberg-webserver/file/;
+    }
   }
 }
