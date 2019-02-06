@@ -13,7 +13,7 @@ http {
             echo;
         }
         location /static {
-            root /usr/src/projects/iceberg-webserver/file/;
+            root /usr/src/projects/iceberg-webserver/file1/;
         }
     }
 }
