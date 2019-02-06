@@ -2,17 +2,17 @@
 #include "http_request.h"
 #include "http_response.h"
 
-#ifndef ECHO_HANDLER_H 
-#define ECHO_HANDLER_H 
+#ifndef ECHO_HANDLER_H_
+#define ECHO_HANDLER_H_
 
 class EchoHandler : public Handler {
-  public:
+ public:
     HttpResponse handle_request(HttpRequest req);
 };
 
 class EchoHandlerMaker : public HandlerMaker {
-  public:
+ public:
     Handler* create();
 };
 
-#endif
+#endif  // ECHO_HANDLER_H_

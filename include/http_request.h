@@ -4,8 +4,8 @@
 #include <iostream>
 #include <sstream>
 
-#ifndef HttpRequest_H
-#define HttpRequest_H
+#ifndef HTTP_REQUEST_H_
+#define HTTP_REQUEST_H_
 
 using namespace std;
 
@@ -18,16 +18,16 @@ using namespace std;
 
 
 class HttpRequest {
-  public:
+ public:
     // 3 elements in start line;
     string method;
     string target;
     string version;
 
-    //headers: content type need to be set to “text/plain”
-    vector<string> headers; 
+    // headers: content type need to be set to “text/plain”
+    vector<string> headers;
 
-    //messageBody:
+    // messageBody:
     string body;
 
     int contentLength;
@@ -35,7 +35,7 @@ class HttpRequest {
     bool parse(const string& data);
     string to_string();
 
-  private:
+ private:
     vector<string> split_str(const string& s, string c);
 
     string clean_str(string s);
@@ -47,4 +47,4 @@ class HttpRequest {
     };
 };
 
-#endif
+#endif  // HTTP_REQUEST_H_

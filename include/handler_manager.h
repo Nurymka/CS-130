@@ -4,20 +4,20 @@
 #include "http_response.h"
 #include "handler.h"
 
-#ifndef HANDLER_MANAGER_H 
-#define HANDLER_MANAGER_H 
+#ifndef HANDLER_MANAGER_H_
+#define HANDLER_MANAGER_H_
 
 using namespace std;
 
 class HandlerManager {
-  public:
-    HandlerManager(unordered_map<string, HandlerMaker*> targetToHandler);
+ public:
+    explicit HandlerManager(unordered_map<string, Handler*> targetToHandler);
     ~HandlerManager();
     HttpResponse handle_request(HttpRequest req);
-  
-  private:
-    // TODO: initialize target to handler mapping from config parsing
-    unordered_map<string, HandlerMaker*> targetToHandler_;
+
+ private:
+    // TODO(nate): initialize target to handler mapping from config parsing
+    unordered_map<string, Handler*> targetToHandler_;
 };
 
-#endif
+#endif  // HANDLER_MANAGER_H_

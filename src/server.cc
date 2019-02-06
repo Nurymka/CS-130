@@ -18,7 +18,7 @@
 
 // refactored server class from server_main.cc
 
-server::server(boost::asio::io_service& io_service, short port,
+server::server(boost::asio::io_service& io_service, unsigned short port,
   HandlerManager* handlerManager)
   : io_service_(io_service),
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
