@@ -9,6 +9,7 @@
 //
 
 #include <cstdlib>
+#include <csignal>
 #include <iostream>
 #include <unordered_map>
 #include <boost/bind.hpp>
@@ -21,6 +22,13 @@
 
 using namespace std;
 
+void interruptHandler(int signum) {
+  BOOST_LOG_SEV(Logger::get(), INFO)
+    << "Interrupt signal (" << signum << ") received. Terminating...";
+
+  exit(signum);
+}
+
 int main(int argc, char* argv[]) {
   try {
     if (argc != 2) {
@@ -30,6 +38,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
+    signal(SIGINT, interruptHandler);
     // copied code from Assignment 1 to find out the portNumber from target config file
     NginxConfigParser config_parser;
     NginxConfig config;
