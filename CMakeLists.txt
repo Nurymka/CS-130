@@ -45,6 +45,7 @@ add_library(http_response_lib src/http_response.cc)
 add_library(echo_handler_lib include/handler.h src/echo_handler.cc)
 add_library(static_handler_lib src/static_handler.cc)
 add_library(handler_manager_lib src/handler_manager.cc)
+add_library(logger_lib src/logger.cc)
 
 target_link_libraries(config_parser_lib echo_handler_lib)
 target_link_libraries(http_request_lib Boost::system session_lib)
@@ -53,12 +54,13 @@ target_link_libraries(server_lib Boost::system session_lib)
 target_link_libraries(echo_handler_lib http_request_lib http_response_lib)
 target_link_libraries(static_handler_lib http_request_lib http_response_lib)
 target_link_libraries(handler_manager_lib echo_handler_lib static_handler_lib)
+target_link_libraries(logger_lib Boost::log)
 
 # TODO(!): Update executable name, srcs, and deps
 # add_executable(example_server src/example_server_main.cc)
 # target_link_libraries(example_server example_lib Boost::system)
 add_executable(server src/main.cc)
-target_link_libraries(server Boost::system server_lib session_lib config_parser_lib Boost::log)
+target_link_libraries(server Boost::system server_lib session_lib config_parser_lib Boost::log logger_lib)
 
 # TODO(!): Update test executable name, srcs, and deps
 # add_executable(example_lib_test tests/example_lib_test.cc)
