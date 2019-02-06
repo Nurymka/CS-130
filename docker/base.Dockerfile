@@ -2,7 +2,7 @@
 # Get the base Ubuntu image from Docker Hub
 FROM ubuntu:latest as base
 
-#RUN apt-get install libboost-regex-dev
+RUN apt-get install libboost-regex-dev
 
 # Update the base image and install build environment
 RUN apt-get update && apt-get install -y \
