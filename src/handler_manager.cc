@@ -5,8 +5,7 @@
 #include "http_response.h"
 
 HandlerManager::HandlerManager(unordered_map<string, HandlerMaker*> targetToHandler)
-  : targetToHandler_(targetToHandler)
-{
+  : targetToHandler_(targetToHandler) {
 }
 
 HandlerManager::~HandlerManager() {
@@ -15,10 +14,11 @@ HandlerManager::~HandlerManager() {
   }
 }
 
-// TODO: Inspect req.path and determine which handler to use
+// TODO(nate): Inspect req.path and determine which handler to use
 HttpResponse HandlerManager::handle_request(HttpRequest req) {
   HandlerMaker* maker = NULL;
-  for(unordered_map<string, HandlerMaker*>::iterator it = targetToHandler_.begin(); it != targetToHandler_.end(); ++it) {
+  for (unordered_map<string, HandlerMaker*>::iterator
+    it = targetToHandler_.begin(); it != targetToHandler_.end(); ++it) {
     if (req.target.rfind(it->first, 0) == 0) {
       maker = it->second;
       break;
@@ -29,8 +29,7 @@ HttpResponse HandlerManager::handle_request(HttpRequest req) {
     HttpResponse res = handler->handle_request(req);
     free(handler);
     return res;
-  }
-  else {
+  } else {
     HttpResponse res;
     res.version = req.version;
     res.status_code = 404;

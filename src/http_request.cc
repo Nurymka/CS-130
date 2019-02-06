@@ -30,17 +30,17 @@ bool HttpRequest::parse(const string& data) {
 
     ParseState state = START_LINE;
 
-    while(getline(input, line)) {
-      line.append("\n"); // add back new-line
+    while (getline(input, line)) {
+      line.append("\n");  // add back new-line
       string cleanLine = clean_str(line);
       if (state == START_LINE) {
           vector<string> tokens = split_str(cleanLine, " ");
-          if(tokens.size() != 3) {
+          if (tokens.size() != 3) {
             cout << "==========T" << "\\" + line << endl;
             return false;
           }
           _method = tokens[0];
-          if(_method.compare("GET") != 0 && _method.compare("PUT") != 0 
+          if (_method.compare("GET") != 0 && _method.compare("PUT") != 0
             && _method.compare("PATCH") != 0 && _method.compare("DELETE") != 0
               && _method.compare("POST") != 0) {
             return false;
@@ -60,7 +60,7 @@ bool HttpRequest::parse(const string& data) {
             if (headerStrs.size() < 1 || headerStrs[1].at(0) != ' ') {
               return false;
             }
-            if(headerStrs[0].compare("Content-Length") == 0) {
+            if (headerStrs[0].compare("Content-Length") == 0) {
               try {
                 string len = headerStrs[1].substr(1, headerStrs[1].length());
                 _contentLength = atoi(len.c_str());
@@ -83,7 +83,7 @@ bool HttpRequest::parse(const string& data) {
       // Example, could be seen as data loss/incomplete transfer.
       // body length greater than specified content-length is NOT treated as error
       // (simply ignore any message content greater than specified content-length)
-      if(_body.length() != _contentLength) {
+      if (_body.length() != _contentLength) {
         return false;
       }
     }
@@ -101,8 +101,8 @@ bool HttpRequest::parse(const string& data) {
 string HttpRequest::to_string() {
     std::ostringstream oss;
     oss << method << " " << target << " " << version << "\r\n";
-    for(auto const &header: headers) {
-    oss << header << "\r\n";
+    for (auto const &header : headers) {
+      oss << header << "\r\n";
     }
     oss << "\r\n";
     oss << body;

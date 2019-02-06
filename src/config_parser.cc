@@ -1,7 +1,7 @@
 #include <string>
-#include <iostream> 
+#include <iostream>
 #include <vector>
-#include <sstream> 
+#include <sstream>
 #include <cstdio>
 #include <fstream>
 #include <memory>
@@ -25,23 +25,23 @@ string NginxConfig::ToString(int depth) {
 }
 
 // Added a function that searches for portNumber in statements_
-int NginxConfig::getPort(){
+int NginxConfig::getPort() {
   for (const auto& statement : statements_) {
     string token_str = statement->tokens_[0];
-    if(strcmp(&token_str[0], "http") == 0){
+    if (strcmp(&token_str[0], "http") == 0) {
       NginxConfig http = *(statement->child_block_);
       int httpPort = http.getPort();
-      if(httpPort != 0) return httpPort;
+      if (httpPort != 0) return httpPort;
     }
-    if(strcmp(&token_str[0], "server") == 0){
+    if (strcmp(&token_str[0], "server") == 0) {
       NginxConfig server = *(statement.get()->child_block_);
       int serverPort = server.getPort();
-      if(serverPort != 0) return serverPort;
+      if (serverPort != 0) return serverPort;
     }
-    if(strcmp(&token_str[0], "listen") == 0){
-      stringstream listenString(statement->tokens_[1]); 
+    if (strcmp(&token_str[0], "listen") == 0) {
+      stringstream listenString(statement->tokens_[1]);
       int listen = 0;
-      listenString >> listen; 
+      listenString >> listen;
       return listen;
     }
   }
@@ -56,21 +56,20 @@ unordered_map<string, HandlerMaker*> NginxConfig::getTargetToHandler() {
     if (tokens[0] == "http" || tokens[0] == "server") {
       NginxConfig childConfig = *(statement->child_block_);
       unordered_map<string, HandlerMaker*> childMap = childConfig.getTargetToHandler();
-      if(childMap.size() > 0) {
+      if (childMap.size() > 0) {
         return childMap;
       }
-    }
-    else if (tokens.size() > 1 && tokens[0] == "location") {
+    } else if (tokens.size() > 1 && tokens[0] == "location") {
       string target = tokens[1];
       string type;
-      
+
       for (const auto& childStatement : statement->child_block_->statements_) {
         vector<string> childTokens = childStatement->tokens_;
         if (childTokens[0] == "echo") {
           targetToHandler[target] = new EchoHandlerMaker();
         }
         if (childTokens.size() > 1 && (childTokens[0] == "alias" || childTokens[0] == "root")) {
-          // TODO: add static file handler here
+          // TODO(nate): add static file handler here
           targetToHandler[target] = new StaticHandlerMaker(childTokens[1], target);
         }
       }
@@ -140,7 +139,7 @@ NginxConfigParser::TokenType NginxConfigParser::ParseToken(istream* input,
             *value = c;
             state = TOKEN_STATE_TOKEN_TYPE_COMMENT;
             continue;
-          case '"': 
+          case '"':
             *value = c;
             state = TOKEN_STATE_DOUBLE_QUOTE;
             continue;
@@ -162,13 +161,13 @@ NginxConfigParser::TokenType NginxConfigParser::ParseToken(istream* input,
             continue;
         }
       case TOKEN_STATE_SINGLE_QUOTE:
-        // TODO: the end of a quoted token should be followed by whitespace.
-        // TODO: Maybe also define a QUOTED_STRING token type.
-        // TODO: Allow for backslash-escaping within strings.
+        // TODO(xiangyin701): the end of a quoted token should be followed by whitespace.
+        // TODO(xiangyin701): Maybe also define a QUOTED_STRING token type.
+        // TODO(xiangyin701): Allow for backslash-escaping within strings.
         *value += c;
         if (c == '\'') {
           return TOKEN_TYPE_NORMAL;
-        } else if(c == '\\') { // added additional conditions where ['abd\';] should be illegal
+        } else if (c == '\\') {  // added additional conditions where ['abd\';] should be illegal
           if (input->good()) {
             *value += input->get();
           }
@@ -178,7 +177,7 @@ NginxConfigParser::TokenType NginxConfigParser::ParseToken(istream* input,
         *value += c;
         if (c == '"') {
           return TOKEN_TYPE_NORMAL;
-        } else if(c == '\\') { // added additional conditions where  ["abd\";] should be illegal
+        } else if (c == '\\') {  // added additional conditions where  ["abd\";] should be illegal
           if (input->good()) {
             *value += input->get();
           }
@@ -219,7 +218,7 @@ bool NginxConfigParser::Parse(istream* config_file, NginxConfig* config) {
   while (true) {
     string token;
     token_type = ParseToken(config_file, &token);
-    //printf ("%s: %s\n", TokenTypeAsString(token_type), token.c_str());
+
     if (token_type == TOKEN_TYPE_ERROR) {
       break;
     }
@@ -285,7 +284,7 @@ bool NginxConfigParser::Parse(istream* config_file, NginxConfig* config) {
       // Error. Unknown token.
       break;
     }
-    last_token_type = token_type; 
+    last_token_type = token_type;
   }
 
   // printf ("Bad transition from %s to %s\n",
@@ -298,7 +297,7 @@ bool NginxConfigParser::Parse(const char* file_name, NginxConfig* config) {
   ifstream config_file;
   config_file.open(file_name);
   if (!config_file.good()) {
-    printf ("Failed to open config file: %s\n", file_name);
+    printf("Failed to open config file: %s\n", file_name);
     return false;
   }
 

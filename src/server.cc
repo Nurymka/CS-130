@@ -22,19 +22,15 @@ server::server(boost::asio::io_service& io_service, unsigned short port,
   HandlerManager* handlerManager)
   : io_service_(io_service),
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
-    handlerManager_(handlerManager)
-{
+    handlerManager_(handlerManager) {
   start_accept();
-  //std::cout<<"server"<< std::endl;
 }
 
 server::~server() {
   delete handlerManager_;
 }
 
-void server::start_accept()
-{
-  //std::cout<<"start_accept "<< std::endl;
+void server::start_accept() {
   session* new_session = new session(io_service_, handlerManager_);
   acceptor_.async_accept(new_session->socket(),
     boost::bind(&server::handle_accept, this, new_session,
@@ -42,16 +38,10 @@ void server::start_accept()
 }
 
 void server::handle_accept(session* new_session,
-  const boost::system::error_code& error)
-{
-  if (!error)
-  {
-    //std::cout<<"handle_accept "<< std::endl;
+  const boost::system::error_code& error) {
+  if (!error) {
     new_session->start();
-  }
-  else
-  {
-    //std::cout<<"handle_accept error"<< std::endl;
+  } else {
     delete new_session;
   }
   start_accept();
