@@ -28,21 +28,11 @@ string NginxConfig::ToString(int depth) {
 int NginxConfig::getPort() {
   for (const auto& statement : statements_) {
     string token_str = statement->tokens_[0];
-    if (strcmp(&token_str[0], "http") == 0) {
-      NginxConfig http = *(statement->child_block_);
-      int httpPort = http.getPort();
-      if (httpPort != 0) return httpPort;
-    }
-    if (strcmp(&token_str[0], "server") == 0) {
-      NginxConfig server = *(statement.get()->child_block_);
-      int serverPort = server.getPort();
-      if (serverPort != 0) return serverPort;
-    }
-    if (strcmp(&token_str[0], "listen") == 0) {
-      stringstream listenString(statement->tokens_[1]);
-      int listen = 0;
-      listenString >> listen;
-      return listen;
+    if (strcmp(&token_str[0], "port") == 0) {
+      stringstream portString(statement->tokens_[1]);
+      int port = 0;
+      portString >> port;
+      return port;
     }
   }
   return -1;

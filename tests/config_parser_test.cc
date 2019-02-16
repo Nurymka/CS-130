@@ -169,24 +169,6 @@ TEST_F(ConfigParserTest, ExtraSemicolonConfig) {
 
 // Test Port config parsing
 
-TEST_F(ConfigParserTest, PortConfigInHttpBlock) {
-  bool success =
-    parser->Parse(
-      "config_parser_test_input/port_config_http_block", out_config);
-  EXPECT_TRUE(success);
-  int portNo = out_config->getPort();
-  EXPECT_EQ(portNo, 8080);
-}
-
-TEST_F(ConfigParserTest, PortConfigInServerBlock) {
-  bool success =
-    parser->Parse(
-      "config_parser_test_input/port_config_server_block", out_config);
-  EXPECT_TRUE(success);
-  int portNo = out_config->getPort();
-  EXPECT_EQ(portNo, 8080);
-}
-
 TEST_F(ConfigParserTest, PortConfigInFirstStatement) {
   bool success =
     parser->Parse(
