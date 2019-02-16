@@ -1,17 +1,17 @@
-http {
-  server {
-    listen 80;
+port 80;
 
-    location /echo {
-      echo;
-    }
+root /usr/src/projects/iceberg-webserver/;
 
-    location /static1 {
-      root /usr/src/projects/iceberg-webserver/file1/;
-    }
-    
-    location /static2 {
-      root /usr/src/projects/iceberg-webserver/file2/;
-    }
-  }
+handler echo {
+  location /echo;
+}
+
+handler static {
+  location /static1;
+  root static/file1;
+}
+
+handler static {
+  location /static2;
+  root static/file2;
 }
