@@ -19,10 +19,12 @@
 
 // refactored server class from server_main.cc
 
-server::server(boost::asio::io_service& io_service, unsigned short port,
-  HandlerManager* handlerManager)
+server::server(boost::asio::io_service& io_service, int16_t port,
+  const string& rootPath, HandlerManager* handlerManager)
   : io_service_(io_service),
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
+    rootPath_(rootPath),
+    port_(port),
     handlerManager_(handlerManager) {
   BOOST_LOG_SEV(Logger::get(), INFO) << "Server starting at port: " << port;
   start_accept();

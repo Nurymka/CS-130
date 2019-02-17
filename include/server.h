@@ -14,7 +14,7 @@ using boost::asio::ip::tcp;
 class server {
  public:
     server(boost::asio::io_service& io_service,
-          unsigned short port, HandlerManager* handlerManager);
+          int16_t port, const string& rootPath, HandlerManager* handlerManager);
     ~server();
  private:
     void start_accept();
@@ -23,6 +23,9 @@ class server {
     boost::asio::io_service& io_service_;
     tcp::acceptor acceptor_;
     HandlerManager* handlerManager_;
+
+    int16_t port_;
+    string rootPath_;
 };
 
 #endif  // SERVER_H_

@@ -172,14 +172,14 @@ TEST_F(ConfigParserTest, PortConfigInFirstStatement) {
     parser->Parse(
       "config_parser_test_input/port_config_listen_statement", out_config);
   EXPECT_TRUE(success);
-  int portNo = out_config->getPort();
+  int16_t portNo = out_config->getPort();
   EXPECT_EQ(portNo, 8080);
 }
 
 TEST_F(ConfigParserTest, PortConfigNoFile) {
   bool success = parser->Parse("config_parser_test_input/FILE_DOES_NOT_EXIST", out_config);
   EXPECT_FALSE(success);
-  int portNo = out_config->getPort();
+  int16_t portNo = out_config->getPort();
   EXPECT_EQ(portNo, -1);
 }
 

@@ -38,9 +38,9 @@ bool NginxConfig::getTopLevelStatement(const string& keyword, T& value) {
 }
 
 // Added a function that searches for portNumber in statements_
-int NginxConfig::getPort() {
-  int port = -1;
-  getTopLevelStatement<int>("port", port);
+int16_t NginxConfig::getPort() {
+  int16_t port = -1;
+  getTopLevelStatement<int16_t>("port", port);
   return port;
 }
 

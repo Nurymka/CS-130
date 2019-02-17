@@ -32,7 +32,7 @@ class NginxConfig {
  public:
   string ToString(int depth = 0);
   vector<shared_ptr<NginxConfigStatement>> statements_;
-  int getPort();
+  int16_t getPort();
 
   // Returns root path without trailing '/' character at the end.
   string getRootPath();
