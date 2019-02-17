@@ -33,7 +33,15 @@ class NginxConfig {
   string ToString(int depth = 0);
   vector<shared_ptr<NginxConfigStatement>> statements_;
   int getPort();
+
+  // Returns root path without trailing '/' character at the end.
+  string getRootPath();
+
   unordered_map<string, HandlerMaker*> getTargetToHandler();
+ private:
+  // Gets value for a top-level keyword (e.g. 'root', 'port')
+  // True if statement exists, T& value is set accordingly; false otherwise.
+  template<typename T> bool getTopLevelStatement(const string& keyword, T& value);
 };
 
 // The driver that parses a config file and generates an NginxConfig.

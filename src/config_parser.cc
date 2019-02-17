@@ -24,18 +24,32 @@ string NginxConfig::ToString(int depth) {
   return serialized_config;
 }
 
-// Added a function that searches for portNumber in statements_
-int NginxConfig::getPort() {
+template<typename T>
+bool NginxConfig::getTopLevelStatement(const string& keyword, T& value) {
   for (const auto& statement : statements_) {
-    string token_str = statement->tokens_[0];
-    if (strcmp(&token_str[0], "port") == 0) {
-      stringstream portString(statement->tokens_[1]);
-      int port = 0;
-      portString >> port;
-      return port;
+    string cur_keyword = statement->tokens_[0];
+    if (keyword.compare(cur_keyword) == 0) {
+      stringstream valueString(statement->tokens_[1]);
+      valueString >> value;
+      return true;
     }
   }
-  return -1;
+  return false;
+}
+
+// Added a function that searches for portNumber in statements_
+int NginxConfig::getPort() {
+  int port = -1;
+  getTopLevelStatement<int>("port", port);
+  return port;
+}
+
+string NginxConfig::getRootPath() {
+  string rootPath;
+  getTopLevelStatement<string>("root", rootPath);
+  if (rootPath[rootPath.length() - 1] == '/')
+    rootPath.erase(rootPath.end() - 1, rootPath.end());
+  return rootPath;
 }
 
 unordered_map<string, HandlerMaker*> NginxConfig::getTargetToHandler() {

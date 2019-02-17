@@ -167,8 +167,6 @@ TEST_F(ConfigParserTest, ExtraSemicolonConfig) {
   EXPECT_FALSE(success);
 }
 
-// Test Port config parsing
-
 TEST_F(ConfigParserTest, PortConfigInFirstStatement) {
   bool success =
     parser->Parse(
@@ -183,5 +181,13 @@ TEST_F(ConfigParserTest, PortConfigNoFile) {
   EXPECT_FALSE(success);
   int portNo = out_config->getPort();
   EXPECT_EQ(portNo, -1);
+}
+
+TEST_F(ConfigParserTest, TopLevelRootStatement) {
+  bool success =
+    parser->Parse("config_parser_test_input/top_level_root_statement_config", out_config);
+  EXPECT_TRUE(success);
+  string rootPath = out_config->getRootPath();
+  EXPECT_EQ(rootPath, "/usr/src/projects/iceberg-webserver");
 }
 }  // namespace
