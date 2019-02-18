@@ -1,4 +1,4 @@
-#include <iostream> 
+#include <iostream>
 #include <fstream>
 
 #include "static_handler.h"
@@ -12,12 +12,10 @@ string StaticHandler::get_mime_type(string filename) {
     // https://stackoverflow.com/questions/3136520/determine-if-map-contains-a-value-for-a-key
     if (EXT_TO_CONTENT_TYPE.find(extension) != EXT_TO_CONTENT_TYPE.end()) {
       return EXT_TO_CONTENT_TYPE.at(extension);
-    }
-    else {
+    } else {
       return DEFAULT_CONTENT_TYPE;
     }
-  }
-  else {
+  } else {
     return DEFAULT_CONTENT_TYPE;
   }
 }
@@ -29,21 +27,20 @@ HttpResponse StaticHandler::handle_request(HttpRequest req) {
   std::string requestTarget = req.target;
 
   std::string suffix = requestTarget.substr(_prefix.length());
-  if(suffix.at(0) == '/'){
+  if (suffix.at(0) == '/') {
     suffix = suffix.substr(1);
   }
-  if(_root.at(_root.length() - 1) == '/'){
+  if (_root.at(_root.length() - 1) == '/') {
     _root = _root.substr(0, _root.length() - 1);
   }
 
   std::string file_path = _root + "/" + suffix;
-  
+
   // https://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
   std::ifstream t(file_path);
   if (!t.good()) {
     res.status_code = 404;
-  }
-  else {
+  } else {
     std::stringstream buffer;
     buffer << t.rdbuf();
 

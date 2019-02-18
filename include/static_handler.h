@@ -6,8 +6,8 @@
 
 using namespace std;
 
-#ifndef STATIC_HANDLER_H 
-#define STATIC_HANDLER_H 
+#ifndef STATIC_HANDLER_H_
+#define STATIC_HANDLER_H_
 
 // http://docs.w3cub.com/http/basics_of_http/mime_types/complete_list_of_mime_types/
 const unordered_map<string, string> EXT_TO_CONTENT_TYPE = {
@@ -18,26 +18,26 @@ const unordered_map<string, string> EXT_TO_CONTENT_TYPE = {
   { "zip", "application/zip"}
 };
 
-const string DEFAULT_CONTENT_TYPE = "text/plain";
+const char DEFAULT_CONTENT_TYPE[] = "text/plain";
 
 class StaticHandler : public Handler {
-  public:
-    StaticHandler(string root, string prefix): _root(root), _prefix(prefix) {}
-    string get_mime_type(string filename);
-    HttpResponse handle_request(HttpRequest req);
-  private:
-    string _root;
-    string _prefix;
+ public:
+  StaticHandler(string root, string prefix): _root(root), _prefix(prefix) {}
+  string get_mime_type(string filename);
+  HttpResponse handle_request(HttpRequest req);
+ private:
+  string _root;
+  string _prefix;
 };
 
 class StaticHandlerMaker : public HandlerMaker {
-  public:
-    Handler* create();
-    StaticHandlerMaker(string root, string prefix): _root(root), _prefix(prefix) {}
+ public:
+  Handler* create();
+  StaticHandlerMaker(string root, string prefix): _root(root), _prefix(prefix) {}
 
-  private:
-    string _root;
-    string _prefix;
+ private:
+  string _root;
+  string _prefix;
 };
 
-#endif
+#endif  // STATIC_HANDLER_H_
