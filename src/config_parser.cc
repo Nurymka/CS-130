@@ -73,8 +73,12 @@ map<string, LocationInfo*> NginxConfig::getLocationInfos() {
         }
       }
 
-      if (!location.empty()) {
+      // map.find(location) == map.end() implies that in case of duplicate
+      // hanlders in same location, the first one in config takes priority.
+      if (!location.empty() && locationInfos.find(location) == locationInfos.end()) {
         locationInfos[location] = info;
+      } else {
+        delete info;
       }
     }
   }

@@ -7,6 +7,7 @@ class ConfigParserTest : public ::testing::Test {
  protected:
   NginxConfigParser* parser;
   NginxConfig* out_config;
+  map<string, LocationInfo*> locInfos;
 
   ConfigParserTest() {}
 
@@ -21,6 +22,8 @@ class ConfigParserTest : public ::testing::Test {
   virtual void TearDown() {
       delete parser;
       delete out_config;
+      for (auto& locInfo : locInfos)
+        delete locInfo.second;
   }
 };
 
@@ -189,5 +192,37 @@ TEST_F(ConfigParserTest, TopLevelRootStatement) {
   EXPECT_TRUE(success);
   string rootPath = out_config->getRootPath();
   EXPECT_EQ(rootPath, "/usr/src/projects/iceberg-webserver");
+}
+
+TEST_F(ConfigParserTest, SimpleLocationInfos) {
+  bool success =
+    parser->Parse("config_parser_test_input/simple_location_infos_config", out_config);
+  EXPECT_TRUE(success);
+
+  locInfos = out_config->getLocationInfos();
+  EXPECT_EQ(locInfos.size(), 1);
+
+  auto staticEntry = locInfos.find("/static1");
+  ASSERT_NE(staticEntry, locInfos.end());
+  ASSERT_NE(staticEntry->second, nullptr);
+  EXPECT_EQ(staticEntry->second->handlerType, "static");
+  ASSERT_NE(staticEntry->second->blockConfig, nullptr);
+  EXPECT_EQ(staticEntry->second->blockConfig->statements_.size(), 2);
+}
+
+TEST_F(ConfigParserTest, DuplicateLocationsTest) {
+  bool success =
+    parser->Parse("config_parser_test_input/duplicate_locations_config", out_config);
+  EXPECT_TRUE(success);
+
+  locInfos = out_config->getLocationInfos();
+  EXPECT_EQ(locInfos.size(), 1);
+
+  auto echoEntry = locInfos.find("/echo");
+  ASSERT_NE(echoEntry, locInfos.end());
+  ASSERT_NE(echoEntry->second, nullptr);
+  EXPECT_EQ(echoEntry->second->handlerType, "echo1");
+  ASSERT_NE(echoEntry->second->blockConfig, nullptr);
+  EXPECT_EQ(echoEntry->second->blockConfig->statements_.size(), 3);
 }
 }  // namespace

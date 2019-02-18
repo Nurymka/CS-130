@@ -1,0 +1,10 @@
+handler echo1 {
+  location /echo;
+  root /echo1;
+  log warn echo.log;
+}
+
+handler echo2 {
+  location /echo;
+  root /echo2;
+}
