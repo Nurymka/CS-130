@@ -5,6 +5,7 @@
 
 #include "session.h"
 #include "handler_manager.h"
+#include "config_parser.h"
 
 #ifndef SERVER_H_
 #define SERVER_H_
@@ -14,7 +15,10 @@ using boost::asio::ip::tcp;
 class server {
  public:
     server(boost::asio::io_service& io_service,
-          int16_t port, const string& rootPath, HandlerManager* handlerManager);
+          int16_t port,
+          const string& rootPath,
+          map<string, LocationInfo*> locationInfos,
+          HandlerManager* handlerManager);
     ~server();
  private:
     void start_accept();
@@ -24,6 +28,7 @@ class server {
     tcp::acceptor acceptor_;
     HandlerManager* handlerManager_;
 
+    map<string, LocationInfo*> locationInfos_;
     int16_t port_;
     string rootPath_;
 };

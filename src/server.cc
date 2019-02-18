@@ -19,18 +19,25 @@
 
 // refactored server class from server_main.cc
 
-server::server(boost::asio::io_service& io_service, int16_t port,
-  const string& rootPath, HandlerManager* handlerManager)
+server::server(boost::asio::io_service& io_service,
+  int16_t port,
+  const string& rootPath,
+  map<string, LocationInfo*> locationInfos,
+  HandlerManager* handlerManager)
   : io_service_(io_service),
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
     rootPath_(rootPath),
     port_(port),
+    locationInfos_(locationInfos),
     handlerManager_(handlerManager) {
   BOOST_LOG_SEV(Logger::get(), INFO) << "Server starting at port: " << port;
   start_accept();
 }
 
 server::~server() {
+  // TODO(nurymka): will get removed once locationInfos_ has unique_ptr<LocationInfo>
+  for (auto& locInfo : locationInfos_)
+    delete locInfo.second;
   delete handlerManager_;
 }
 

@@ -52,6 +52,36 @@ string NginxConfig::getRootPath() {
   return rootPath;
 }
 
+map<string, LocationInfo*> NginxConfig::getLocationInfos() {
+  map <string, LocationInfo*> locationInfos;
+
+  for (const auto& statement : statements_) {
+    vector<string> tokens = statement->tokens_;
+    // Checks if the current token is a handler
+    if (tokens.size() == 2 && tokens[0] == "handler") {
+      string location;
+      LocationInfo *info = new LocationInfo();
+      info->handlerType = tokens[1];
+      info->blockConfig = statement->child_block_;
+
+      // In the handler block, looks for a 'location' statement
+      for (const auto& blockStatement : info->blockConfig->statements_) {
+        vector<string> blockTokens = blockStatement->tokens_;
+        if (blockTokens[0] == "location") {
+          location = blockTokens[1];
+          break;
+        }
+      }
+
+      if (!location.empty()) {
+        locationInfos[location] = info;
+      }
+    }
+  }
+
+  return locationInfos;
+}
+
 unordered_map<string, HandlerMaker*> NginxConfig::getTargetToHandler() {
   unordered_map<string, HandlerMaker*> targetToHandler;
 

@@ -46,14 +46,16 @@ int main(int argc, char* argv[]) {
       BOOST_LOG_SEV(Logger::get(), ERROR)
         << "Error encountered parsing config file.";
     }
+
     int16_t portNumber = config.getPort();
     string rootPath = config.getRootPath();
+    auto locationInfos = config.getLocationInfos();
 
     unordered_map<string, HandlerMaker*> targetToHandler = config.getTargetToHandler();
     HandlerManager* handlerManager = new HandlerManager(targetToHandler);
     boost::asio::io_service io_service;
 
-    server s(io_service, portNumber, rootPath, handlerManager);
+    server s(io_service, portNumber, rootPath, locationInfos, handlerManager);
     io_service.run();
   }
   catch (std::exception& e) {

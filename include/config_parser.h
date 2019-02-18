@@ -10,21 +10,26 @@
 #include <stack>
 #include <cstring>
 #include <unordered_map>
+#include <map>
 #include "handler.h"
 
 #ifndef CONFIG_PARSER_H_
 #define CONFIG_PARSER_H_
-
 using namespace std;
 
 class NginxConfig;
+
+struct LocationInfo {
+  string handlerType;
+  shared_ptr<NginxConfig> blockConfig;
+};
 
 // The parsed representation of a single config statement.
 class NginxConfigStatement {
  public:
   string ToString(int depth);
   vector<string> tokens_;
-  unique_ptr<NginxConfig> child_block_;
+  shared_ptr<NginxConfig> child_block_;
 };
 
 // The parsed representation of the entire config.
@@ -37,6 +42,12 @@ class NginxConfig {
   // Returns root path without trailing '/' character at the end.
   string getRootPath();
 
+  // Returns a dictionary of supported locations (e.g. "/echo", "/static1")
+  // with their respective config
+  // TODO(nurymka): change LocationInfo* into a unique_ptr, had problems
+  // with compilation when I tried. The owner of the map should be the server.
+  // For now, it'll be the one reponsible for deallocing LocationInfo objects.
+  map<string, LocationInfo*> getLocationInfos();
   unordered_map<string, HandlerMaker*> getTargetToHandler();
  private:
   // Gets value for a top-level keyword (e.g. 'root', 'port')
