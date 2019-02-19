@@ -194,44 +194,4 @@ TEST_F(ConfigParserTest, TopLevelRootStatement) {
   string rootPath = out_config->getRootPath();
   EXPECT_EQ(rootPath, "/usr/src/projects/iceberg-webserver");
 }
-
-TEST_F(ConfigParserTest, SimpleLocationInfos) {
-  bool success =
-    parser->Parse("config_parser_test_input/simple_location_infos_config", out_config);
-  EXPECT_TRUE(success);
-
-  locMap = LocationUtils::getLocationMapFrom(*out_config);
-  EXPECT_EQ(locMap.size(), 2);
-
-  auto staticEntry = locMap.find("/static1");
-
-
-  // In simple_locations_infos_config,
-  // even though handler for /very/long/path is registered second,
-  // it has to be internally sorted in descending length of locations,
-  // meaning hanlder for /static1 must come second.
-  EXPECT_NE(staticEntry, locMap.begin());
-
-  ASSERT_NE(staticEntry, locMap.end());
-  ASSERT_NE(staticEntry->second, nullptr);
-  EXPECT_EQ(staticEntry->second->handlerType, "static");
-  ASSERT_NE(staticEntry->second->blockConfig, nullptr);
-  EXPECT_EQ(staticEntry->second->blockConfig->statements_.size(), 2);
-}
-
-TEST_F(ConfigParserTest, DuplicateLocationsTest) {
-  bool success =
-    parser->Parse("config_parser_test_input/duplicate_locations_config", out_config);
-  EXPECT_TRUE(success);
-
-  locMap = LocationUtils::getLocationMapFrom(*out_config);
-  EXPECT_EQ(locMap.size(), 1);
-
-  auto echoEntry = locMap.find("/echo");
-  ASSERT_NE(echoEntry, locMap.end());
-  ASSERT_NE(echoEntry->second, nullptr);
-  EXPECT_EQ(echoEntry->second->handlerType, "echo1");
-  ASSERT_NE(echoEntry->second->blockConfig, nullptr);
-  EXPECT_EQ(echoEntry->second->blockConfig->statements_.size(), 3);
-}
 }  // namespace

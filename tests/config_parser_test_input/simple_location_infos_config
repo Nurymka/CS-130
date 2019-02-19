@@ -3,6 +3,13 @@ handler static {
   root static/file1;
 }
 
-handler static {
+handler static_a {
   location /very/long/path;
+}
+
+handler static_b {
+  location /very/long;
+  opt a;
+  opt b;
+  opt c;
 }

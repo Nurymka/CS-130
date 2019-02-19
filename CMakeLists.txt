@@ -84,6 +84,9 @@ target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_
 add_executable(static_handler_test tests/static_handler_test.cc)
 target_link_libraries(static_handler_test http_request_lib http_response_lib static_handler_lib gtest_main)
 
+add_executable(location_test tests/location_test.cc)
+target_link_libraries(location_test config_parser_lib location_lib gtest_main)
+
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
@@ -92,6 +95,7 @@ gtest_discover_tests(http_response_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE
 gtest_discover_tests(session_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(echo_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(static_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(location_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 add_test(
     NAME server_integration_test 
@@ -107,7 +111,7 @@ generate_coverage_report(
     TARGETS server Boost::system server_lib session_lib config_parser_lib 
         http_request_lib http_response_lib
     TESTS config_parser_lib_test http_request_test http_response_test session_test
-        echo_handler_test static_handler_test
+        echo_handler_test static_handler_test location_test
 )
 
 include(cmake/CppLint.cmake)

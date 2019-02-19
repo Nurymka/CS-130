@@ -114,6 +114,8 @@ void session::handle_write(const boost::system::error_code& error) {
   string client_ip = socket().remote_endpoint().address().to_string();
 
   if (!error) {
+    // TODO(nurymka): It is actually not the case that a connection always shuts
+    // down here.
     BOOST_LOG_SEV(Logger::get(), INFO)
       << "Successfully wrote to " << client_ip
       << ". Shutting down connection.";

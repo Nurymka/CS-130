@@ -26,6 +26,25 @@ class LocationUtils {
   // Returns a dictionary of supported locations (e.g. "/echo", "/static1")
   // with their respective config.
   static LocationMap getLocationMapFrom(const NginxConfig& config);
+  static LocationInfo* getLongestMatchingLocation(const string& reqLocation,
+    const LocationMap& locMap);
+ private:
+  // Strips any components (e.g. query) and returns location path only.
+  // Also, strips any last trailing '/'.
+  // For example, "/static/file1/?tag=new" becomes "/static/file1"
+  static string extractPathOnly(const string& location);
+
+  // Returns the number of path components in the location.
+  // Assumes that the input doesn't include the host.
+  // Returns -1 in case there are no '/' chars present.
+  // For example, "/static/file1" would return 2.
+  static int getLocationDepth(const string& location);
+
+  // Returns the first n of path components specified by 'depth'.
+  // If specified depth is higher than number of path components, the original
+  // location is returned.
+  // For example, "/static/file1" with depth 1 returns "/static".
+  static string extractPathWithDepth(const string& location, size_t depth);
 };
 
 #endif  // LOCATION_H_

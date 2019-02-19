@@ -1,4 +1,7 @@
+#include <string>
 #include "location.h"
+
+using namespace std;
 
 LocationMap LocationUtils::getLocationMapFrom(const NginxConfig& config) {
   LocationMap locationMap;
@@ -32,4 +35,69 @@ LocationMap LocationUtils::getLocationMapFrom(const NginxConfig& config) {
   }
 
   return locationMap;
+}
+
+LocationInfo* LocationUtils::getLongestMatchingLocation(const string& reqLocation,
+  const LocationMap& locMap) {
+  for (auto& locMapEntry : locMap) {
+    string regLocation = locMapEntry.first;
+    int regLocationDepth = LocationUtils::getLocationDepth(regLocation);
+
+    if (regLocationDepth == -1)
+      return nullptr;
+
+    string stripReqLocation = LocationUtils::extractPathWithDepth(reqLocation, regLocationDepth);
+    if (regLocation == stripReqLocation)
+      return locMapEntry.second;
+  }
+
+  return nullptr;
+}
+
+string LocationUtils::extractPathOnly(const string& location) {
+  string res = location;
+
+  size_t queryIdx = res.find('?');
+  if (queryIdx != string::npos)
+    res.erase(queryIdx);
+
+  if (res.back() == '/')
+    res.erase(res.end() - 1, res.end());
+
+  return res;
+}
+
+int LocationUtils::getLocationDepth(const string& location) {
+  if (location == "/")
+    return 0;
+
+  int depth = 0;
+  string path = LocationUtils::extractPathOnly(location);
+  for (int i = 0; i < path.length(); i++) {
+    if (path[i] == '/')
+      depth++;
+  }
+
+  if (depth == 0)
+    return -1;
+
+  return depth;
+}
+
+string LocationUtils::extractPathWithDepth(const string& location, size_t depth) {
+  if (depth == 0)
+    return "/";
+
+  string path = LocationUtils::extractPathOnly(location);
+  string res;
+  int slashOccurs = 0;
+  for (int i = 0; i < path.length(); i++) {
+    if (path[i] == '/')
+      slashOccurs++;
+    if (slashOccurs > depth)
+      break;
+    res += path[i];
+  }
+
+  return res;
 }
