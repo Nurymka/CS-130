@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
     int16_t portNumber = config.getPort();
     string rootPath = config.getRootPath();
-    auto locationInfos = config.getLocationInfos();
+    LocationMap locationInfos = config.getLocationInfos();
 
     unordered_map<string, HandlerMaker*> targetToHandler = config.getTargetToHandler();
     HandlerManager* handlerManager = new HandlerManager(targetToHandler);

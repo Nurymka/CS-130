@@ -19,10 +19,23 @@ using namespace std;
 
 class NginxConfig;
 
+#pragma region Location Mapping
+
+// A predicate that sorts keys in descending length
+struct LocationComp {
+  bool operator() (const string& lhs, const string& rhs) const {
+    return lhs.length() > rhs.length();
+  }
+};
+
 struct LocationInfo {
   string handlerType;
   shared_ptr<NginxConfig> blockConfig;
 };
+
+typedef map<string, LocationInfo*, LocationComp> LocationMap;
+
+#pragma endregion
 
 // The parsed representation of a single config statement.
 class NginxConfigStatement {
@@ -47,7 +60,7 @@ class NginxConfig {
   // TODO(nurymka): change LocationInfo* into a unique_ptr, had problems
   // with compilation when I tried. The owner of the map should be the server.
   // For now, it'll be the one reponsible for deallocing LocationInfo objects.
-  map<string, LocationInfo*> getLocationInfos();
+  LocationMap getLocationInfos();
   unordered_map<string, HandlerMaker*> getTargetToHandler();
  private:
   // Gets value for a top-level keyword (e.g. 'root', 'port')

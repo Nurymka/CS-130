@@ -2,3 +2,7 @@ handler static {
   location /static1;
   root static/file1;
 }
+
+handler static {
+  location /very/long/path;
+}

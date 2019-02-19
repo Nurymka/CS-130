@@ -17,7 +17,7 @@ class server {
     server(boost::asio::io_service& io_service,
           int16_t port,
           const string& rootPath,
-          map<string, LocationInfo*> locationInfos,
+          LocationMap locationInfos,
           HandlerManager* handlerManager);
     ~server();
  private:
@@ -28,7 +28,7 @@ class server {
     tcp::acceptor acceptor_;
     HandlerManager* handlerManager_;
 
-    map<string, LocationInfo*> locationInfos_;
+    LocationMap locationInfos_;
     int16_t port_;
     string rootPath_;
 };

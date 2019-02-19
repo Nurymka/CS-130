@@ -7,7 +7,7 @@ class ConfigParserTest : public ::testing::Test {
  protected:
   NginxConfigParser* parser;
   NginxConfig* out_config;
-  map<string, LocationInfo*> locInfos;
+  LocationMap locInfos;
 
   ConfigParserTest() {}
 
@@ -200,9 +200,17 @@ TEST_F(ConfigParserTest, SimpleLocationInfos) {
   EXPECT_TRUE(success);
 
   locInfos = out_config->getLocationInfos();
-  EXPECT_EQ(locInfos.size(), 1);
+  EXPECT_EQ(locInfos.size(), 2);
 
   auto staticEntry = locInfos.find("/static1");
+
+
+  // In simple_locations_infos_config,
+  // even though handler for /very/long/path is registered second,
+  // it has to be internally sorted in descending length of locations,
+  // meaning hanlder for /static1 must come second.
+  EXPECT_NE(staticEntry, locInfos.begin());
+
   ASSERT_NE(staticEntry, locInfos.end());
   ASSERT_NE(staticEntry->second, nullptr);
   EXPECT_EQ(staticEntry->second->handlerType, "static");

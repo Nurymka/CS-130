@@ -52,8 +52,8 @@ string NginxConfig::getRootPath() {
   return rootPath;
 }
 
-map<string, LocationInfo*> NginxConfig::getLocationInfos() {
-  map <string, LocationInfo*> locationInfos;
+LocationMap NginxConfig::getLocationInfos() {
+  LocationMap locationInfos;
 
   for (const auto& statement : statements_) {
     vector<string> tokens = statement->tokens_;
