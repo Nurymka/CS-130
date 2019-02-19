@@ -7,12 +7,9 @@
 
 class EchoHandler : public Handler {
  public:
-    HttpResponse handle_request(HttpRequest req);
-};
-
-class EchoHandlerMaker : public HandlerMaker {
- public:
-    Handler* create();
+  static Handler* create(const NginxConfig& config,
+                         const string& root_path);
+  unique_ptr<HttpResponse> handle_request(const HttpRequest& req);
 };
 
 #endif  // ECHO_HANDLER_H_

@@ -79,7 +79,8 @@ add_executable(session_test tests/session_test.cc)
 target_link_libraries(session_test http_request_lib session_lib gtest_main)
 
 add_executable(echo_handler_test tests/echo_handler_test.cc)
-target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_handler_lib gtest_main)
+target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_handler_lib
+config_parser_lib gtest_main)
 
 add_executable(static_handler_test tests/static_handler_test.cc)
 target_link_libraries(static_handler_test http_request_lib http_response_lib static_handler_lib

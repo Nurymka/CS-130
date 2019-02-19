@@ -3,6 +3,7 @@
 #include "echo_handler.h"
 #include "http_request.h"
 #include "http_response.h"
+#include "config_parser.h"
 
 using ::testing::StartsWith;
 using ::testing::HasSubstr;
@@ -10,10 +11,13 @@ using ::testing::EndsWith;
 
 namespace {
 class EchoHandlerTest : public ::testing::Test {
+  virtual void TearDown() {
+    delete echoHandler;
+  }
  protected:
-  EchoHandler echoHandler;
+  Handler *echoHandler = EchoHandler::create(NginxConfig(), "");
   HttpRequest req;
-  HttpResponse res;
+  unique_ptr<HttpResponse> res;
 };
 
 TEST_F(EchoHandlerTest, CheckGoodRequestHandler) {
@@ -25,9 +29,9 @@ TEST_F(EchoHandlerTest, CheckGoodRequestHandler) {
   input += "\r\n";
 
   req.parse(input);
-  res = echoHandler.handle_request(req);
+  res = echoHandler->handle_request(req);
 
-  string responseStr = res.to_string();
+  string responseStr = res->to_string();
   EXPECT_THAT(responseStr, StartsWith("HTTP/1.1 200 OK\r\n"));
   EXPECT_THAT(responseStr, HasSubstr("Content-Type: text/plain\r\n"));
   EXPECT_THAT(responseStr, EndsWith(input));
