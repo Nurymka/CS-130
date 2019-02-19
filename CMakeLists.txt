@@ -44,6 +44,8 @@ add_library(http_request_lib src/http_request.cc)
 add_library(http_response_lib src/http_response.cc)
 add_library(echo_handler_lib include/handler.h src/echo_handler.cc)
 add_library(static_handler_lib src/static_handler.cc)
+add_library(not_found_handler_lib src/not_found_handler.cc)
+add_library(bad_request_handler_lib src/bad_request_handler.cc)
 add_library(handler_manager_lib src/handler_manager.cc)
 add_library(logger_lib src/logger.cc)
 add_library(location_lib src/location.cc)
@@ -54,7 +56,8 @@ target_link_libraries(session_lib Boost::system http_request_lib http_response_l
 target_link_libraries(server_lib Boost::system session_lib logger_lib)
 target_link_libraries(echo_handler_lib http_request_lib http_response_lib)
 target_link_libraries(static_handler_lib http_request_lib http_response_lib config_parser_lib location_lib)
-target_link_libraries(handler_manager_lib echo_handler_lib static_handler_lib)
+target_link_libraries(not_found_handler_lib http_request_lib http_response_lib config_parser_lib location_lib)
+target_link_libraries(handler_manager_lib echo_handler_lib static_handler_lib not_found_handler_lib bad_request_handler_lib)
 target_link_libraries(logger_lib Boost::log)
 
 # TODO(!): Update executable name, srcs, and deps
@@ -75,9 +78,6 @@ target_link_libraries(http_request_test http_request_lib gtest_main)
 add_executable(http_response_test tests/http_response_test.cc)
 target_link_libraries(http_response_test http_response_lib gtest_main)
 
-add_executable(session_test tests/session_test.cc)
-target_link_libraries(session_test http_request_lib session_lib location_lib gtest_main)
-
 add_executable(echo_handler_test tests/echo_handler_test.cc)
 target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_handler_lib
 config_parser_lib gtest_main)
@@ -94,7 +94,6 @@ target_link_libraries(location_test config_parser_lib location_lib gtest_main)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(http_request_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(http_response_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-gtest_discover_tests(session_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(echo_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(static_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(location_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
@@ -112,7 +111,7 @@ include(cmake/CodeCoverageReportConfig.cmake)
 generate_coverage_report(
     TARGETS server Boost::system server_lib session_lib config_parser_lib 
         http_request_lib http_response_lib
-    TESTS config_parser_lib_test http_request_test http_response_test session_test
+    TESTS config_parser_lib_test http_request_test http_response_test 
         echo_handler_test static_handler_test location_test
 )
 

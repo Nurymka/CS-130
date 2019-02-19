@@ -2,6 +2,8 @@
 #include "handler.h"
 #include "echo_handler.h"
 #include "static_handler.h"
+#include "not_found_handler.h"
+#include "bad_request_handler.h"
 
 unique_ptr<Handler> HandlerManager::createByName(const string& name,
                                                  const NginxConfig& config,
@@ -10,8 +12,9 @@ unique_ptr<Handler> HandlerManager::createByName(const string& name,
     return unique_ptr<Handler>(EchoHandler::create(config, root_path));
   } else if (name == "static") {
     return unique_ptr<Handler>(StaticHandler::create(config, root_path));
+  } else if (name == "bad_request") {
+    return unique_ptr<Handler>(BadRequestHandler::create(config, root_path));
   } else {
-    // TODO(nurymka): figure out what to do by default
-    return unique_ptr<Handler>(EchoHandler::create(config, root_path));
+    return unique_ptr<Handler>(NotFoundHandler::create(config, root_path));
   }
 }

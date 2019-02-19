@@ -27,20 +27,6 @@
 // https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/example/cpp11/http/server/request_parser.cpp
 // https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/example/cpp11/http/server/request_handler.cpp
 
-#pragma region Static Methods
-
-// TODO(nurymka): move to one of the seaprate handler files
-unique_ptr<HttpResponse> session::handle_bad_request() {
-  unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
-  res->version = "HTTP/1.1";
-  res->status_code = 400;
-  res->headers.push_back("Content-Type: text/plain");
-  res->body = HttpResponse::kBadRequestMessage;
-  return res;
-}
-
-#pragma endregion
-
 #pragma region Instance Methods
 
 session::session(boost::asio::io_service& io_service,
@@ -83,35 +69,33 @@ void session::handle_read(const boost::system::error_code& error,
       HttpRequest req;
       unique_ptr<HttpResponse> res;
       bool success = req.parse(str);
-
-      LocationInfo* locInfo = LocationUtils::getLongestMatchingLocation(req.target, *locationMap_);
       unique_ptr<Handler> handler;
-
-      if (locInfo) {
-        string regLocation;
-        locInfo->blockConfig->getTopLevelStatement("location", regLocation);
-        BOOST_LOG_SEV(Logger::get(), INFO)
-          << "Requested location " << req.target
-          << " is served by handler registered at " << regLocation;
-        BOOST_LOG_SEV(Logger::get(), INFO)
-          << "Handler type is '" << locInfo->handlerType << "'";
-        handler = HandlerManager::createByName(locInfo->handlerType,
-                                               *locInfo->blockConfig,
-                                               rootPath_);
-      } else {
-        // TODO(nurymka): figure out what to do in case no matching location is found
-        handler = HandlerManager::createByName("echo", NginxConfig(), rootPath_);
-      }
 
       if (success) {
         BOOST_LOG_SEV(Logger::get(), INFO)
           << "Handling valid request from " << client_ip;
-        res = handler->handle_request(req);
+        LocationInfo* locInfo = LocationUtils::getLongestMatchingLocation(req.target, *locationMap_);
+
+        if (locInfo) {
+          string regLocation;
+          locInfo->blockConfig->getTopLevelStatement("location", regLocation);
+          BOOST_LOG_SEV(Logger::get(), INFO)
+            << "Requested location " << req.target
+            << " is served by handler registered at " << regLocation;
+          BOOST_LOG_SEV(Logger::get(), INFO)
+            << "Handler type is '" << locInfo->handlerType << "'";
+          handler = HandlerManager::createByName(locInfo->handlerType,
+                                                *locInfo->blockConfig,
+                                                rootPath_);
+        } else {
+          handler = HandlerManager::createByName("404", NginxConfig(), rootPath_);
+        }
       } else {
         BOOST_LOG_SEV(Logger::get(), INFO)
           << "Handling bad request from " << client_ip;
-        res = session::handle_bad_request();
+        handler = HandlerManager::createByName("bad_request", NginxConfig(), rootPath_);
       }
+      res = handler->handle_request(req);
 
       string responseStr = res->to_string();
       const char* chars = responseStr.c_str();

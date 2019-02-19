@@ -22,7 +22,6 @@ class session {
             const string& rootPath);
     tcp::socket& socket();
     void start();
-    static unique_ptr<HttpResponse> handle_bad_request();
 
  private:
   void handle_read(const boost::system::error_code& error,
