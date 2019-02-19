@@ -11,9 +11,9 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <memory>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include <memory>
 #include "session.h"
 #include "http_request.h"
 #include "http_response.h"
@@ -21,6 +21,7 @@
 #include "logger.h"
 #include "location.h"
 #include "config_parser.h"
+#include "data_store.h"
 
 // refactored session class from server_main.cc
 // part of the codes adapted or inspired from following urls:
@@ -34,7 +35,18 @@ session::session(boost::asio::io_service& io_service,
                  const string& rootPath)
   : socket_(io_service),
     locationMap_(locationMap),
-    rootPath_(rootPath) {}
+    rootPath_(rootPath) {
+  dataStore_ = &DataStore::getDataStore();
+}
+
+session::session(boost::asio::io_service& io_service,
+                 LocationMap* locationMap,
+                 const string& rootPath,
+                 DataStore* dataStore)
+  : socket_(io_service),
+    locationMap_(locationMap),
+    rootPath_(rootPath),
+    dataStore_(dataStore) {}
 
 tcp::socket& session::socket() {
   return socket_;
@@ -106,6 +118,8 @@ void session::handle_read(const boost::system::error_code& error,
         boost::asio::buffer(chars, responseStr.length()),
         boost::bind(&session::handle_write, this,
           boost::asio::placeholders::error));
+
+      dataStore_->recordRequest(req.target, res->status_code);
     } else {
       socket_.async_read_some(boost::asio::buffer(_buffer, buffer_length),
         boost::bind(&session::handle_read, this,

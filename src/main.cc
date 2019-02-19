@@ -20,6 +20,7 @@
 #include "handler.h"
 #include "handler_manager.h"
 #include "location.h"
+#include "data_store.h"
 
 using namespace std;
 
@@ -52,6 +53,7 @@ int main(int argc, char* argv[]) {
     string rootPath = config.getRootPath();
     LocationMap locationMap = LocationUtils::getLocationMapFrom(config);
 
+    DataStore::getDataStore().setLocationMap(locationMap);
     boost::asio::io_service io_service;
     server s(io_service, portNumber, rootPath, locationMap);
     io_service.run();

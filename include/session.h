@@ -6,6 +6,7 @@
 #include "http_response.h"
 #include "handler_manager.h"
 #include "location.h"
+#include "data_store.h"
 
 #ifndef SESSION_H_
 #define SESSION_H_
@@ -17,11 +18,16 @@ const int buffer_length = 1024;
 
 class session {
  public:
-    session(boost::asio::io_service& io_service,
-            LocationMap* locationMap,
-            const string& rootPath);
-    tcp::socket& socket();
-    void start();
+  session(boost::asio::io_service& io_service,
+          LocationMap* locationMap,
+          const string& rootPath);
+  session(boost::asio::io_service& io_service,
+          LocationMap* locationMap,
+          const string& rootPath,
+          DataStore* dataStore_);  // to inject mock in case of testing
+  tcp::socket& socket();
+  void start();
+  static unique_ptr<HttpResponse> handle_bad_request();
 
  private:
   void handle_read(const boost::system::error_code& error,
@@ -34,6 +40,7 @@ class session {
 
   LocationMap* locationMap_;
   string rootPath_;
+  DataStore* dataStore_;
 };
 
 #endif  // SESSION_H_
