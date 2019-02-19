@@ -17,8 +17,7 @@ class server {
     server(boost::asio::io_service& io_service,
           int16_t port,
           const string& rootPath,
-          LocationMap locationMap,
-          HandlerManager* handlerManager);
+          LocationMap locationMap);
     ~server();
 
  private:

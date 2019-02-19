@@ -11,7 +11,6 @@
 #include <cstring>
 #include <unordered_map>
 #include <map>
-#include "handler.h"
 
 #ifndef CONFIG_PARSER_H_
 #define CONFIG_PARSER_H_
@@ -43,7 +42,6 @@ class NginxConfig {
   // with compilation when I tried. The owner of the map should be the server.
   // For now, it'll be the one reponsible for deallocing LocationInfo objects.
   LocationMap getLocationInfos();
-  unordered_map<string, HandlerMaker*> getTargetToHandler();
  private:
   // Gets value for a top-level keyword (e.g. 'root', 'port')
   // True if statement exists, T& value is set accordingly; false otherwise.

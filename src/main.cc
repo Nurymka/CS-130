@@ -52,11 +52,8 @@ int main(int argc, char* argv[]) {
     string rootPath = config.getRootPath();
     LocationMap locationMap = LocationUtils::getLocationMapFrom(config);
 
-    unordered_map<string, HandlerMaker*> targetToHandler = config.getTargetToHandler();
-    HandlerManager* handlerManager = new HandlerManager(targetToHandler);
     boost::asio::io_service io_service;
-
-    server s(io_service, portNumber, rootPath, locationMap, handlerManager);
+    server s(io_service, portNumber, rootPath, locationMap);
     io_service.run();
   }
   catch (std::exception& e) {

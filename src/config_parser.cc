@@ -85,37 +85,6 @@ LocationMap NginxConfig::getLocationInfos() {
 
   return locationInfos;
 }
-
-unordered_map<string, HandlerMaker*> NginxConfig::getTargetToHandler() {
-  unordered_map<string, HandlerMaker*> targetToHandler;
-
-  for (const auto& statement : statements_) {
-    vector<string> tokens = statement->tokens_;
-    if (tokens[0] == "http" || tokens[0] == "server") {
-      NginxConfig childConfig = *(statement->child_block_);
-      unordered_map<string, HandlerMaker*> childMap = childConfig.getTargetToHandler();
-      if (childMap.size() > 0) {
-        return childMap;
-      }
-    } else if (tokens.size() > 1 && tokens[0] == "location") {
-      string target = tokens[1];
-      string type;
-
-      for (const auto& childStatement : statement->child_block_->statements_) {
-        vector<string> childTokens = childStatement->tokens_;
-        if (childTokens[0] == "echo") {
-          targetToHandler[target] = new EchoHandlerMaker();
-        }
-        if (childTokens.size() > 1 && (childTokens[0] == "alias" || childTokens[0] == "root")) {
-          // TODO(nate): add static file handler here
-          targetToHandler[target] = new StaticHandlerMaker(childTokens[1], target);
-        }
-      }
-    }
-  }
-  return targetToHandler;
-}
-
 string NginxConfigStatement::ToString(int depth) {
   string serialized_statement;
   for (int i = 0; i < depth; ++i) {

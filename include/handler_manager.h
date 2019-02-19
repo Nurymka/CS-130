@@ -11,13 +11,9 @@ using namespace std;
 
 class HandlerManager {
  public:
-    explicit HandlerManager(unordered_map<string, HandlerMaker*> targetToHandler);
-    ~HandlerManager();
-    HttpResponse handle_request(HttpRequest req);
-
- private:
-    // TODO(nate): initialize target to handler mapping from config parsing
-    unordered_map<string, HandlerMaker*> targetToHandler_;
+  unique_ptr<Handler> createByName(const string& name,
+                                   const NginxConfig& config,
+                                   const string& root_path);
 };
 
 #endif  // HANDLER_MANAGER_H_
