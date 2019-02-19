@@ -7,4 +7,8 @@ Iceberg Webserver is an http server developed in C++ by Team Iceberg for COM SCI
 Code Structure:
 Almost all of the source, build, test, and binary files in our repository are organized into a several subdirectories.  The only files at the top level of our repo are:
 
-- CMakelists.txt:  This file specifies the binaries and test configurations to be generated
+- CMakelists.txt:  This file specifies the binaries and test configurations to be generated when CMake is run.  This will be explained in greater depth in the "Build, Run, Test" section of the README.
+
+- CPPLINT.cfg:  This file configures our repo's linting tool.
+
+- README:  This file explains how our repository is organized and how to use and contribute to it.  You are currently reading it.
