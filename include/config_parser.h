@@ -19,11 +19,6 @@ using namespace std;
 
 class NginxConfig;
 
-struct LocationInfo {
-  string handlerType;
-  shared_ptr<NginxConfig> blockConfig;
-};
-
 // The parsed representation of a single config statement.
 class NginxConfigStatement {
  public:
