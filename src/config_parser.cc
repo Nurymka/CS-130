@@ -52,39 +52,6 @@ string NginxConfig::getRootPath() {
   return rootPath;
 }
 
-LocationMap NginxConfig::getLocationInfos() {
-  LocationMap locationInfos;
-
-  for (const auto& statement : statements_) {
-    vector<string> tokens = statement->tokens_;
-    // Checks if the current token is a handler
-    if (tokens.size() == 2 && tokens[0] == "handler") {
-      string location;
-      LocationInfo *info = new LocationInfo();
-      info->handlerType = tokens[1];
-      info->blockConfig = statement->child_block_;
-
-      // In the handler block, looks for a 'location' statement
-      for (const auto& blockStatement : info->blockConfig->statements_) {
-        vector<string> blockTokens = blockStatement->tokens_;
-        if (blockTokens[0] == "location") {
-          location = blockTokens[1];
-          break;
-        }
-      }
-
-      // map.find(location) == map.end() implies that in case of duplicate
-      // hanlders in same location, the first one in config takes priority.
-      if (!location.empty() && locationInfos.find(location) == locationInfos.end()) {
-        locationInfos[location] = info;
-      } else {
-        delete info;
-      }
-    }
-  }
-
-  return locationInfos;
-}
 string NginxConfigStatement::ToString(int depth) {
   string serialized_statement;
   for (int i = 0; i < depth; ++i) {

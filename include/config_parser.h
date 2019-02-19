@@ -9,11 +9,10 @@
 #include <memory>
 #include <stack>
 #include <cstring>
-#include <unordered_map>
-#include <map>
 
 #ifndef CONFIG_PARSER_H_
 #define CONFIG_PARSER_H_
+
 using namespace std;
 
 class NginxConfig;
@@ -36,13 +35,6 @@ class NginxConfig {
   // Returns root path without trailing '/' character at the end.
   string getRootPath();
 
-  // Returns a dictionary of supported locations (e.g. "/echo", "/static1")
-  // with their respective config
-  // TODO(nurymka): change LocationInfo* into a unique_ptr, had problems
-  // with compilation when I tried. The owner of the map should be the server.
-  // For now, it'll be the one reponsible for deallocing LocationInfo objects.
-  LocationMap getLocationInfos();
- private:
   // Gets value for a top-level keyword (e.g. 'root', 'port')
   // True if statement exists, T& value is set accordingly; false otherwise.
   template<typename T> bool getTopLevelStatement(const string& keyword, T& value) const;
