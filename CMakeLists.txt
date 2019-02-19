@@ -82,7 +82,8 @@ add_executable(echo_handler_test tests/echo_handler_test.cc)
 target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_handler_lib gtest_main)
 
 add_executable(static_handler_test tests/static_handler_test.cc)
-target_link_libraries(static_handler_test http_request_lib http_response_lib static_handler_lib gtest_main)
+target_link_libraries(static_handler_test http_request_lib http_response_lib static_handler_lib
+config_parser_lib location_lib gtest_main)
 
 add_executable(location_test tests/location_test.cc)
 target_link_libraries(location_test config_parser_lib location_lib gtest_main)

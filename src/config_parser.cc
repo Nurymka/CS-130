@@ -25,7 +25,7 @@ string NginxConfig::ToString(int depth) {
 }
 
 template<typename T>
-bool NginxConfig::getTopLevelStatement(const string& keyword, T& value) {
+bool NginxConfig::getTopLevelStatement(const string& keyword, T& value) const {
   for (const auto& statement : statements_) {
     string cur_keyword = statement->tokens_[0];
     if (keyword.compare(cur_keyword) == 0) {

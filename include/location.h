@@ -1,8 +1,12 @@
 #include <map>
+#include <string>
+#include <memory>
 #include "config_parser.h"
 
 #ifndef LOCATION_H_
 #define LOCATION_H_
+
+using namespace std;
 
 // A predicate that sorts keys in descending length
 struct LocationComp {
@@ -28,12 +32,16 @@ class LocationUtils {
   static LocationMap getLocationMapFrom(const NginxConfig& config);
   static LocationInfo* getLongestMatchingLocation(const string& reqLocation,
     const LocationMap& locMap);
- private:
+
   // Strips any components (e.g. query) and returns location path only.
   // Also, strips any last trailing '/'.
   // For example, "/static/file1/?tag=new" becomes "/static/file1"
   static string extractPathOnly(const string& location);
 
+  // Returns the concatenated result of two paths.
+  static string concatPaths(string fPath, string sPath);
+
+ private:
   // Returns the number of path components in the location.
   // Assumes that the input doesn't include the host.
   // Returns -1 in case there are no '/' chars present.

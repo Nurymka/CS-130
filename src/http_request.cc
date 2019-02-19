@@ -97,7 +97,7 @@ bool HttpRequest::parse(const string& data) {
     return true;
 }
 
-string HttpRequest::to_string() {
+string HttpRequest::to_string() const {
     std::ostringstream oss;
     oss << method << " " << target << " " << version << "\r\n";
     for (auto const &header : headers) {

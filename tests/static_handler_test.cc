@@ -3,8 +3,7 @@
 #include "static_handler.h"
 #include "http_request.h"
 #include "http_response.h"
-
-const char TEST_ROOT[] = "/usr/src/projects/iceberg-webserver/tests/static_file";
+#include "config_parser.h"
 
 using ::testing::StartsWith;
 using ::testing::HasSubstr;
@@ -13,16 +12,29 @@ using ::testing::EndsWith;
 namespace {
 class StaticHandlerTest: public ::testing::Test {
  protected:
-  StaticHandler staticHandler = StaticHandler(TEST_ROOT, "/target");
+  NginxConfigParser parser;
+  NginxConfig config;
+
+  Handler* staticHandler;
   HttpRequest req;
-  HttpResponse res;
+  unique_ptr<HttpResponse> res;
+
+  virtual void SetUp() {
+    parser.Parse("config_parser_test_input/static_handler_config", &config);
+    shared_ptr<NginxConfig> blockConfig = config.statements_[1]->child_block_;
+    staticHandler = StaticHandler::create(*blockConfig, config.getRootPath());
+  }
+
+  virtual void TearDown() {
+    delete staticHandler;
+  }
 };
 
 TEST_F(StaticHandlerTest, TestGetMimeType) {
-  EXPECT_EQ(staticHandler.get_mime_type("file.html"), "text/html");
-  EXPECT_EQ(staticHandler.get_mime_type("file.jpg"), "image/jpeg");
-  EXPECT_EQ(staticHandler.get_mime_type("file.txt"), "text/plain");
-  EXPECT_EQ(staticHandler.get_mime_type("file.unknown"), "text/plain");
+  EXPECT_EQ(StaticHandler::get_mime_type("file.html"), "text/html");
+  EXPECT_EQ(StaticHandler::get_mime_type("file.jpg"), "image/jpeg");
+  EXPECT_EQ(StaticHandler::get_mime_type("file.txt"), "text/plain");
+  EXPECT_EQ(StaticHandler::get_mime_type("file.unknown"), "text/plain");
 }
 
 TEST_F(StaticHandlerTest, TestGoodRequest) {
@@ -34,9 +46,9 @@ TEST_F(StaticHandlerTest, TestGoodRequest) {
   input += "\r\n";
 
   req.parse(input);
-  res = staticHandler.handle_request(req);
+  res = staticHandler->handle_request(req);
 
-  string responseStr = res.to_string();
+  string responseStr = res->to_string();
   EXPECT_THAT(responseStr, StartsWith("HTTP/1.1 200 OK\r\n"));
   EXPECT_THAT(responseStr, HasSubstr("Content-Type: text/plain\r\n"));
   EXPECT_THAT(responseStr, EndsWith("TEST"));
@@ -51,9 +63,9 @@ TEST_F(StaticHandlerTest, TestBadRequest) {
   input += "\r\n";
 
   req.parse(input);
-  res = staticHandler.handle_request(req);
+  res = staticHandler->handle_request(req);
 
-  string responseStr = res.to_string();
+  string responseStr = res->to_string();
   EXPECT_THAT(responseStr, StartsWith("HTTP/1.1 404 Not Found\r\n"));
 }
 }  // namespace

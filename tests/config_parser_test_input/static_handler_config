@@ -1,0 +1,6 @@
+root /usr/src/projects/iceberg-webserver;
+
+static handler {
+  location /target;
+  root tests/static_file;
+}

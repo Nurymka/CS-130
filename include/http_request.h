@@ -33,7 +33,7 @@ class HttpRequest {
     int contentLength;
 
     bool parse(const string& data);
-    string to_string();
+    string to_string() const;
 
  private:
     vector<string> split_str(const string& s, string c);

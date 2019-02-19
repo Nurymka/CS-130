@@ -4,6 +4,23 @@
 #include "static_handler.h"
 #include "http_request.h"
 #include "http_response.h"
+#include "location.h"
+
+using namespace std;
+
+Handler* StaticHandler::create(const NginxConfig& config,
+                               const string& root_path) {
+  return new StaticHandler(config, root_path);
+}
+
+StaticHandler::StaticHandler(const NginxConfig& config, const string& root_path) {
+  // TODO(nurymka): force root & location statements inside the block config
+  serverRootPath_ = root_path;
+  if (config.getTopLevelStatement("root", staticRootPath_))
+    staticRootPath_ = LocationUtils::extractPathOnly(staticRootPath_);
+  if (config.getTopLevelStatement("location", location_))
+    location_ = LocationUtils::extractPathOnly(location_);
+}
 
 string StaticHandler::get_mime_type(string filename) {
   int index = filename.rfind(".");
@@ -20,37 +37,25 @@ string StaticHandler::get_mime_type(string filename) {
   }
 }
 
-HttpResponse StaticHandler::handle_request(HttpRequest req) {
-  HttpResponse res;
-  res.version = req.version;
+unique_ptr<HttpResponse> StaticHandler::handle_request(const HttpRequest& req) {
+  unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
+  res->version = req.version;
 
-  std::string requestTarget = req.target;
-
-  std::string suffix = requestTarget.substr(_prefix.length());
-  if (suffix.at(0) == '/') {
-    suffix = suffix.substr(1);
-  }
-  if (_root.at(_root.length() - 1) == '/') {
-    _root = _root.substr(0, _root.length() - 1);
-  }
-
-  std::string file_path = _root + "/" + suffix;
+  string file_path;
+  file_path = LocationUtils::concatPaths(serverRootPath_, staticRootPath_);
+  file_path = LocationUtils::concatPaths(file_path, req.target.substr(location_.length()));
 
   // https://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
   std::ifstream t(file_path);
   if (!t.good()) {
-    res.status_code = 404;
+    res->status_code = 404;
   } else {
     std::stringstream buffer;
     buffer << t.rdbuf();
 
-    res.status_code = 200;
-    res.headers.push_back("Content-Type: " + get_mime_type(file_path));
-    res.body = buffer.str();
+    res->status_code = 200;
+    res->headers.push_back("Content-Type: " + get_mime_type(file_path));
+    res->body = buffer.str();
   }
   return res;
-}
-
-Handler* StaticHandlerMaker::create() {
-  return new StaticHandler(this->_root, this->_prefix);
 }

@@ -22,22 +22,17 @@ const char DEFAULT_CONTENT_TYPE[] = "text/plain";
 
 class StaticHandler : public Handler {
  public:
-  StaticHandler(string root, string prefix): _root(root), _prefix(prefix) {}
-  string get_mime_type(string filename);
-  HttpResponse handle_request(HttpRequest req);
- private:
-  string _root;
-  string _prefix;
-};
+  static Handler* create(const NginxConfig& config,
+                         const string& root_path);
 
-class StaticHandlerMaker : public HandlerMaker {
- public:
-  Handler* create();
-  StaticHandlerMaker(string root, string prefix): _root(root), _prefix(prefix) {}
+  unique_ptr<HttpResponse> handle_request(const HttpRequest& req);
+  static string get_mime_type(string filename);
 
  private:
-  string _root;
-  string _prefix;
+  StaticHandler(const NginxConfig& config, const string& root_path);
+  string serverRootPath_;
+  string staticRootPath_;
+  string location_;
 };
 
 #endif  // STATIC_HANDLER_H_

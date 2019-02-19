@@ -47,7 +47,7 @@ class NginxConfig {
  private:
   // Gets value for a top-level keyword (e.g. 'root', 'port')
   // True if statement exists, T& value is set accordingly; false otherwise.
-  template<typename T> bool getTopLevelStatement(const string& keyword, T& value);
+  template<typename T> bool getTopLevelStatement(const string& keyword, T& value) const;
 };
 
 // The driver that parses a config file and generates an NginxConfig.

@@ -101,3 +101,13 @@ string LocationUtils::extractPathWithDepth(const string& location, size_t depth)
 
   return res;
 }
+
+string LocationUtils::concatPaths(string fPath, string sPath) {
+  if (fPath.at(fPath.length() - 1) == '/')
+    fPath.erase(fPath.end() - 1, fPath.end());
+
+  if (sPath.at(0) == '/')
+    sPath = sPath.substr(1);
+
+  return fPath + '/' + sPath;
+}
