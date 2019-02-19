@@ -2,8 +2,6 @@
 #include <fstream>
 
 #include "static_handler.h"
-#include "http_request.h"
-#include "http_response.h"
 #include "location.h"
 
 using namespace std;

@@ -1,3 +1,4 @@
+#include <memory>
 #include "gtest/gtest.h"
 #include "session.h"
 #include "http_response.h"
@@ -6,7 +7,7 @@ namespace {
 class SessionTest: public ::testing::Test {
  protected:
   HttpRequest req;
-  HttpResponse res;
+  unique_ptr<HttpResponse> res;
 };
 
 TEST_F(SessionTest, CheckBadRequestHandler) {
@@ -21,6 +22,6 @@ TEST_F(SessionTest, CheckBadRequestHandler) {
   expected_res +=
     "Please check for syntax errors and make sure the client is forming HTTP/1.1 requests";
 
-  EXPECT_EQ(res.to_string(), expected_res);
+  EXPECT_EQ(res->to_string(), expected_res);
 }
 }  // namespace

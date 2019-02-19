@@ -26,7 +26,7 @@ class server {
       const boost::system::error_code& error);
     boost::asio::io_service& io_service_;
     tcp::acceptor acceptor_;
-    HandlerManager* handlerManager_;
+
     LocationMap locationMap_;
     int16_t port_;
     string rootPath_;

@@ -11,7 +11,7 @@ using namespace std;
 
 class HandlerManager {
  public:
-  unique_ptr<Handler> createByName(const string& name,
+  static unique_ptr<Handler> createByName(const string& name,
                                    const NginxConfig& config,
                                    const string& root_path);
 };

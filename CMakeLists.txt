@@ -50,10 +50,10 @@ add_library(location_lib src/location.cc)
 
 target_link_libraries(config_parser_lib echo_handler_lib)
 target_link_libraries(http_request_lib Boost::system session_lib)
-target_link_libraries(session_lib Boost::system http_request_lib http_response_lib handler_manager_lib logger_lib)
+target_link_libraries(session_lib Boost::system http_request_lib http_response_lib handler_manager_lib logger_lib config_parser_lib)
 target_link_libraries(server_lib Boost::system session_lib logger_lib)
 target_link_libraries(echo_handler_lib http_request_lib http_response_lib)
-target_link_libraries(static_handler_lib http_request_lib http_response_lib)
+target_link_libraries(static_handler_lib http_request_lib http_response_lib config_parser_lib location_lib)
 target_link_libraries(handler_manager_lib echo_handler_lib static_handler_lib)
 target_link_libraries(logger_lib Boost::log)
 
@@ -76,7 +76,7 @@ add_executable(http_response_test tests/http_response_test.cc)
 target_link_libraries(http_response_test http_response_lib gtest_main)
 
 add_executable(session_test tests/session_test.cc)
-target_link_libraries(session_test http_request_lib session_lib gtest_main)
+target_link_libraries(session_test http_request_lib session_lib location_lib gtest_main)
 
 add_executable(echo_handler_test tests/echo_handler_test.cc)
 target_link_libraries(echo_handler_test http_request_lib http_response_lib echo_handler_lib

@@ -39,7 +39,7 @@ server::~server() {
 }
 
 void server::start_accept() {
-  session* new_session = new session(io_service_, handlerManager_);
+  session* new_session = new session(io_service_, &locationMap_, rootPath_);
   acceptor_.async_accept(new_session->socket(),
     boost::bind(&server::handle_accept, this, new_session,
       boost::asio::placeholders::error));

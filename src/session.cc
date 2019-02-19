@@ -13,11 +13,14 @@
 
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <memory>
 #include "session.h"
 #include "http_request.h"
 #include "http_response.h"
 #include "handler_manager.h"
 #include "logger.h"
+#include "location.h"
+#include "config_parser.h"
 
 // refactored session class from server_main.cc
 // part of the codes adapted or inspired from following urls:
@@ -26,12 +29,13 @@
 
 #pragma region Static Methods
 
-HttpResponse session::handle_bad_request() {
-  HttpResponse res;
-  res.version = "HTTP/1.1";
-  res.status_code = 400;
-  res.headers.push_back("Content-Type: text/plain");
-  res.body = HttpResponse::kBadRequestMessage;
+// TODO(nurymka): move to one of the seaprate handler files
+unique_ptr<HttpResponse> session::handle_bad_request() {
+  unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
+  res->version = "HTTP/1.1";
+  res->status_code = 400;
+  res->headers.push_back("Content-Type: text/plain");
+  res->body = HttpResponse::kBadRequestMessage;
   return res;
 }
 
@@ -39,10 +43,12 @@ HttpResponse session::handle_bad_request() {
 
 #pragma region Instance Methods
 
-session::session(boost::asio::io_service& io_service, HandlerManager* handlerManager)
-    : socket_(io_service),
-      handlerManager_(handlerManager) {
-}
+session::session(boost::asio::io_service& io_service,
+                 LocationMap* locationMap,
+                 const string& rootPath)
+  : socket_(io_service),
+    locationMap_(locationMap),
+    rootPath_(rootPath) {}
 
 tcp::socket& session::socket() {
   return socket_;
@@ -75,19 +81,39 @@ void session::handle_read(const boost::system::error_code& error,
       BOOST_LOG_SEV(Logger::get(), INFO)
         << "Raw request from " << client_ip << ":\n" << str;
       HttpRequest req;
-      HttpResponse res;
+      unique_ptr<HttpResponse> res;
       bool success = req.parse(str);
+
+      LocationInfo* locInfo = LocationUtils::getLongestMatchingLocation(req.target, *locationMap_);
+      unique_ptr<Handler> handler;
+
+      if (locInfo) {
+        string regLocation;
+        locInfo->blockConfig->getTopLevelStatement("location", regLocation);
+        BOOST_LOG_SEV(Logger::get(), INFO)
+          << "Requested location " << req.target
+          << " is served by handler registered at " << regLocation;
+        BOOST_LOG_SEV(Logger::get(), INFO)
+          << "Handler type is '" << locInfo->handlerType << "'";
+        handler = HandlerManager::createByName(locInfo->handlerType,
+                                               *locInfo->blockConfig,
+                                               rootPath_);
+      } else {
+        // TODO(nurymka): figure out what to do in case no matching location is found
+        handler = HandlerManager::createByName("echo", NginxConfig(), rootPath_);
+      }
 
       if (success) {
         BOOST_LOG_SEV(Logger::get(), INFO)
           << "Handling valid request from " << client_ip;
-        res = handlerManager_->handle_request(req);
+        res = handler->handle_request(req);
       } else {
         BOOST_LOG_SEV(Logger::get(), INFO)
           << "Handling bad request from " << client_ip;
         res = session::handle_bad_request();
       }
-      string responseStr = res.to_string();
+
+      string responseStr = res->to_string();
       const char* chars = responseStr.c_str();
       BOOST_LOG_SEV(Logger::get(), INFO)
         << "Sending a response to " << client_ip

@@ -5,6 +5,7 @@
 #include "http_request.h"
 #include "http_response.h"
 #include "handler_manager.h"
+#include "location.h"
 
 #ifndef SESSION_H_
 #define SESSION_H_
@@ -17,22 +18,23 @@ const int buffer_length = 1024;
 class session {
  public:
     session(boost::asio::io_service& io_service,
-            HandlerManager* handlerManager);
+            LocationMap* locationMap,
+            const string& rootPath);
     tcp::socket& socket();
     void start();
-    static HttpResponse handle_bad_request();
+    static unique_ptr<HttpResponse> handle_bad_request();
 
  private:
-    void handle_read(const boost::system::error_code& error,
-      size_t bytes_transferred);
-    void handle_write(const boost::system::error_code& error);
+  void handle_read(const boost::system::error_code& error,
+  size_t bytes_transferred);
+  void handle_write(const boost::system::error_code& error);
 
-    tcp::socket socket_;
+  tcp::socket socket_;
+  char _buffer[buffer_length];
+  vector<char> input_;
 
-    char _buffer[buffer_length];
-    vector<char> input_;
-
-    HandlerManager* handlerManager_;
+  LocationMap* locationMap_;
+  string rootPath_;
 };
 
 #endif  // SESSION_H_
