@@ -2,4 +2,9 @@ Iceberg Webserver
 Team Iceberg: Jason Mally, Nurym Kudaibergen, Nate Sookwongse
 
 What is Iceberg Webserver?
-Iceberg Webserver is an http server developed in C++ by Team Iceberg for Com Sci 130, an upper division software engineering course at UCLA
+Iceberg Webserver is an http server developed in C++ by Team Iceberg for COM SCI 130, an upper division software engineering course at UCLA.
+
+Code Structure:
+Almost all of the source, build, test, and binary files in our repository are organized into a several subdirectories.  The only files at the top level of our repo are:
+
+- CMakelists.txt:  This file specifies the binaries and test configurations to be generated
