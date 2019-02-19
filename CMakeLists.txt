@@ -46,6 +46,7 @@ add_library(echo_handler_lib include/handler.h src/echo_handler.cc)
 add_library(static_handler_lib src/static_handler.cc)
 add_library(handler_manager_lib src/handler_manager.cc)
 add_library(logger_lib src/logger.cc)
+add_library(location_lib src/location.cc)
 
 target_link_libraries(config_parser_lib echo_handler_lib)
 target_link_libraries(http_request_lib Boost::system session_lib)
@@ -60,13 +61,13 @@ target_link_libraries(logger_lib Boost::log)
 # add_executable(example_server src/example_server_main.cc)
 # target_link_libraries(example_server example_lib Boost::system)
 add_executable(server src/main.cc)
-target_link_libraries(server Boost::system server_lib session_lib config_parser_lib Boost::log logger_lib)
+target_link_libraries(server Boost::system server_lib session_lib config_parser_lib Boost::log logger_lib location_lib)
 
 # TODO(!): Update test executable name, srcs, and deps
 # add_executable(example_lib_test tests/example_lib_test.cc)
 # target_link_libraries(example_lib_test example_lib gtest_main)
 add_executable(config_parser_lib_test tests/config_parser_test.cc)
-target_link_libraries(config_parser_lib_test config_parser_lib gtest_main)
+target_link_libraries(config_parser_lib_test config_parser_lib location_lib gtest_main)
 
 add_executable(http_request_test tests/http_request_test.cc)
 target_link_libraries(http_request_test http_request_lib gtest_main)

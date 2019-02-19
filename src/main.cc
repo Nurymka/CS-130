@@ -19,6 +19,7 @@
 #include "config_parser.h"
 #include "handler.h"
 #include "handler_manager.h"
+#include "location.h"
 
 using namespace std;
 
@@ -49,13 +50,13 @@ int main(int argc, char* argv[]) {
 
     int16_t portNumber = config.getPort();
     string rootPath = config.getRootPath();
-    LocationMap locationInfos = config.getLocationInfos();
+    LocationMap locationMap = LocationUtils::getLocationMapFrom(config);
 
     unordered_map<string, HandlerMaker*> targetToHandler = config.getTargetToHandler();
     HandlerManager* handlerManager = new HandlerManager(targetToHandler);
     boost::asio::io_service io_service;
 
-    server s(io_service, portNumber, rootPath, locationInfos, handlerManager);
+    server s(io_service, portNumber, rootPath, locationMap, handlerManager);
     io_service.run();
   }
   catch (std::exception& e) {

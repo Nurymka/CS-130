@@ -19,23 +19,10 @@ using namespace std;
 
 class NginxConfig;
 
-#pragma region Location Mapping
-
-// A predicate that sorts keys in descending length
-struct LocationComp {
-  bool operator() (const string& lhs, const string& rhs) const {
-    return lhs.length() > rhs.length();
-  }
-};
-
 struct LocationInfo {
   string handlerType;
   shared_ptr<NginxConfig> blockConfig;
 };
-
-typedef map<string, LocationInfo*, LocationComp> LocationMap;
-
-#pragma endregion
 
 // The parsed representation of a single config statement.
 class NginxConfigStatement {

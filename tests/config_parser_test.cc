@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "config_parser.h"
+#include "location.h"
 
 // referred from https://stackoverflow.com/questions/26030700/unit-testing-c-setup-and-teardown
 namespace {
@@ -7,7 +8,7 @@ class ConfigParserTest : public ::testing::Test {
  protected:
   NginxConfigParser* parser;
   NginxConfig* out_config;
-  LocationMap locInfos;
+  LocationMap locMap;
 
   ConfigParserTest() {}
 
@@ -22,7 +23,7 @@ class ConfigParserTest : public ::testing::Test {
   virtual void TearDown() {
       delete parser;
       delete out_config;
-      for (auto& locInfo : locInfos)
+      for (auto& locInfo : locMap)
         delete locInfo.second;
   }
 };
@@ -199,19 +200,19 @@ TEST_F(ConfigParserTest, SimpleLocationInfos) {
     parser->Parse("config_parser_test_input/simple_location_infos_config", out_config);
   EXPECT_TRUE(success);
 
-  locInfos = out_config->getLocationInfos();
-  EXPECT_EQ(locInfos.size(), 2);
+  locMap = LocationUtils::getLocationMapFrom(*out_config);
+  EXPECT_EQ(locMap.size(), 2);
 
-  auto staticEntry = locInfos.find("/static1");
+  auto staticEntry = locMap.find("/static1");
 
 
   // In simple_locations_infos_config,
   // even though handler for /very/long/path is registered second,
   // it has to be internally sorted in descending length of locations,
   // meaning hanlder for /static1 must come second.
-  EXPECT_NE(staticEntry, locInfos.begin());
+  EXPECT_NE(staticEntry, locMap.begin());
 
-  ASSERT_NE(staticEntry, locInfos.end());
+  ASSERT_NE(staticEntry, locMap.end());
   ASSERT_NE(staticEntry->second, nullptr);
   EXPECT_EQ(staticEntry->second->handlerType, "static");
   ASSERT_NE(staticEntry->second->blockConfig, nullptr);
@@ -223,11 +224,11 @@ TEST_F(ConfigParserTest, DuplicateLocationsTest) {
     parser->Parse("config_parser_test_input/duplicate_locations_config", out_config);
   EXPECT_TRUE(success);
 
-  locInfos = out_config->getLocationInfos();
-  EXPECT_EQ(locInfos.size(), 1);
+  locMap = LocationUtils::getLocationMapFrom(*out_config);
+  EXPECT_EQ(locMap.size(), 1);
 
-  auto echoEntry = locInfos.find("/echo");
-  ASSERT_NE(echoEntry, locInfos.end());
+  auto echoEntry = locMap.find("/echo");
+  ASSERT_NE(echoEntry, locMap.end());
   ASSERT_NE(echoEntry->second, nullptr);
   EXPECT_EQ(echoEntry->second->handlerType, "echo1");
   ASSERT_NE(echoEntry->second->blockConfig, nullptr);

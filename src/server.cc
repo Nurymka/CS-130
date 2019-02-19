@@ -22,13 +22,13 @@
 server::server(boost::asio::io_service& io_service,
   int16_t port,
   const string& rootPath,
-  LocationMap locationInfos,
+  LocationMap locationMap,
   HandlerManager* handlerManager)
   : io_service_(io_service),
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
     rootPath_(rootPath),
     port_(port),
-    locationInfos_(locationInfos),
+    locationMap_(locationMap),
     handlerManager_(handlerManager) {
   BOOST_LOG_SEV(Logger::get(), INFO) << "Server starting at port: " << port;
   start_accept();
@@ -36,7 +36,7 @@ server::server(boost::asio::io_service& io_service,
 
 server::~server() {
   // TODO(nurymka): will get removed once locationInfos_ has unique_ptr<LocationInfo>
-  for (auto& locInfo : locationInfos_)
+  for (auto& locInfo : locationMap_)
     delete locInfo.second;
   delete handlerManager_;
 }
