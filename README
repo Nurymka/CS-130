@@ -5,10 +5,150 @@ What is Iceberg Webserver?
 Iceberg Webserver is an http server developed in C++ by Team Iceberg for COM SCI 130, an upper division software engineering course at UCLA.
 
 Code Structure:
-Almost all of the source, build, test, and binary files in our repository are organized into a several subdirectories.  The only files at the top level of our repo are:
+	Almost all of the source, build, test, and binary files in our repository are organized into a several subdirectories.  The important files at the top level of our repo are:
 
-- CMakelists.txt:  This file specifies the binaries and test configurations to be generated when CMake is run.  This will be explained in greater depth in the "Build, Run, Test" section of the README.
+	- CMakelists.txt:  This file specifies the binaries and test configurations to be generated when CMake is run.  This will be explained in greater depth in the "Build, Run, Test" section of the README.
 
-- CPPLINT.cfg:  This file configures our repo's linting tool.
+	- CPPLINT.cfg:  This file configures our repo's linting tool.
 
-- README:  This file explains how our repository is organized and how to use and contribute to it.  You are currently reading it.
+	- README:  This file explains how our repository is organized and how to use and contribute to it.  You are currently reading it.
+
+	- .gitignore
+
+	- .dockerignore
+
+	Directories at the top level that you might care about:
+
+	docker: Contains base.Dockerfile, coverage.Dockerfile, cloudbuild.yaml, and our main Dockerfile.  One can edit these files to alter the Docker container in which one runs and tests the server.
+
+	include: Contains the various header files that define the classes and interfaces which comprise our server.  Files of note:
+
+	  - handler.h: defines the request handler interface implemented by every request handler class implemented in our server. The request handler class definitions can also be found in the 'include' directory following this naming convention: "<type>_handler.h"
+
+	  - location.h: defines the LocationUtils class, which provides developers with several static methods to extract and identify the locations to which handlers are registered in the config file.  This header also defines the LocationComp struct, which defines a predicate for sorting keys by descending length, as well as the LocationInfo struct, which consists of a string denoting the handler type and a shared pointer to an NGinxConfig with information about said handler.  Also defined is a LocationMap, which is a map of strings to LocationInfos, using LocationComp for comparison.
+
+	  - logger.h: defines a logging class that implements Boost logging through our code base.
+
+	  - server.h: defines the server class. The server class maintains LocationMap, port number, and root path private member variables.
+
+	  - session.h: defines the session class.
+
+	  - config_parser.h: defines the NginxConfig and NginxConfigParser classes.
+
+	  - data_store.h: defines a global static object to maintain information about how many requests of each type are received by the server.  Used in conjunction with the status handler.
+
+	  - handler_manager.h, http_request.h, http_response.h: define the handler manager, http request and http response classes respectively.  These are in accordance with the common API specified here: https://docs.google.com/document/d/1-BsDsv6BerargpyivX1T6BwPCgQ63pBpczkZajHVOtY/edit#heading=h.ftx34utqzfmv
+
+	src: contains implementations of all the classes defined in the 'include' directory.  Note that handler.h defines an interface, not a class, and consequently has no corresponding .cc file.  The 'src' directory also contains "main.cc," which contains our main routine.
+
+	tests: contains source code for unit and integration tests at its top level.  The unit tests for specific classes are in files named "<class_name>_test.cc" and the integration test is named "server_integration_test.sh."
+	- Subdirectories:
+	  - static_file: contains a static file ("test.txt") for testing static file handling.
+	  - config_parser_test_input: contains a variety of various test config files.  Among these are both valid and invalid config files, used for the "config_parser" class unit tests as well as other unit tests in which a config file is needed in the test fixture setup.
+
+	static: contains the static files to be hosted by our server.  These static files are in one of two subdirectories, named "file1" and "file2."
+
+	misc: contains "cpplint.py," the linting tool we use on our code base.
+
+	config: contains the config file we use to initialize our server, "server_config."
+
+	cmake: we use this directory to perform out-of-source builds.  Our server binary ("server") and test binaries reside in cmake's subdirectory 'bin' once they are generated.  The config file used in these builds is located in cmake's subdirectory 'config'
+
+
+How to use Iceberg Webserver
+
+	Build:
+	To build the Iceberg Webserver, navigate to the 'cmake' directory and enter the following commands:
+		$ cmake ..
+		$ make
+	
+	Test:
+	To generate the test binaries, run the following command in the 'cmake' directory:
+		$ make test
+	Running this command will also run the newly-generated test binaries.
+
+	To run the integration test, navigate back to the root of the repository, then to the 'tests' directory, and run the following command:
+		$ ./server_integration_test.sh
+
+	Run:
+	To run our server from the 'cmake' directory, run the following command:
+		$ bin/server <path>/<config_file_name>
+	In this command, replace <path> with the location of the config file of your choice and replace <config_file_name> with the name of that config file.  Once the server is running, you may submit http requests to it as you would your own http server.
+
+
+How to add a request handler to Iceberg Webserver
+	
+	Implementing a new request handler for the Iceberg Webserver involves several steps.
+	We break these into two major components: implementation and integration.
+
+	Implementation:
+	Every Iceberg Webserver request handler implements the handler interface defined in "handler.h."  This interface is reproduced below for reference.
+
+		class Handler {
+		 public:
+		  static Handler* create(const NginxConfig& config,
+		                         const string& root_path);
+		  virtual unique_ptr<HttpResponse> handle_request(const HttpRequest& req) = 0;
+		};
+
+	This interface requires the developer to implement two functions: a static constructor and handle_request(), a function which receives an HttpRequest object as an argument, does some sort of processing, then returns a unique_pointer to a corresponding HttpResponse object.  
+
+	Each request handler should be defined in its own header file.  It is recommended to write this using the structure of "echo_handler.h" (reproduced below) for guidance.  Note that preprocessing directives (e.g. #IFNDEF) have been removed from this sample.  Also note that the handler interface as well as the httpRequest and HttpResponse classes are included.
+
+			#include "handler.h"
+			#include "http_request.h"
+			#include "http_response.h"
+
+
+			class EchoHandler : public Handler {
+			 public:
+			  static Handler* create(const NginxConfig& config,
+			                         const string& root_path);
+			  unique_ptr<HttpResponse> handle_request(const HttpRequest& req);
+			};
+
+	The implementations of these functions in "echo_handler.cc" are reproduced here:
+
+		Handler* EchoHandler::create(const NginxConfig& config,
+	                             const string& root_path) {
+		  return new EchoHandler();
+		}
+
+		unique_ptr<HttpResponse> EchoHandler::handle_request(const HttpRequest& req) {
+		  unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
+		  res->version = req.version;
+		  res->status_code = 200;
+		  res->headers.push_back("Content-Type: text/plain");
+		  res->body = req.to_string();
+		  return res;
+		}
+
+	If the handler you develop performs a substantial amount of workc in handle_request(), you may define other functions in the header file you create, then implement them in the corresponding source file.
+
+	Integration:
+	Congrats!  You've created a new request handler for the Iceberg Webserver. Now it's time to add it to the server so we can use it.  First, you need to add your request handler to the config file in the 'config' directory.  Follow the syntactical guidelines laid out in the Common API spec: https://docs.google.com/document/d/1-BsDsv6BerargpyivX1T6BwPCgQ63pBpczkZajHVOtY/edit#
+
+	When you have added your handler to the config file, navigate to "handler_manager.cc."  You will see the following function:
+
+		unique_ptr<Handler> HandlerManager::createByName(const string& name,
+	                                                 const NginxConfig& config,
+	                                                 const string& root_path) {
+			  if (name == "echo") {
+			    return unique_ptr<Handler>(EchoHandler::create(config, root_path));
+			  } 
+			  else if (name == "static") {
+			    return unique_ptr<Handler>(StaticHandler::create(config, root_path));
+			  } 
+			  else {
+			    return unique_ptr<Handler>(EchoHandler::create(config, root_path));
+			  }
+		}
+
+	You may notice more 'else if' statements in the if-else-if chain.  The most important point to note is that this function is called to determine which handler to create to process a specific request.  To modify this function so that your handler can be created when it is invoked, add a statement of the following form in the if-else-if chain:
+
+		else if (name == <handler_name>) {
+			return unique_ptr<Handler>(<new_handler_class>::create(config, root_path));
+		}
+
+	In this code snippet, replace <handler_name> with the name tied to the handler in the config file (e.g. "echo" or "static") and replace <new_handler_class> with the name of the handler class you've created.
+	
