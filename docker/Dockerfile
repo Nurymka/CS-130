@@ -16,9 +16,8 @@ FROM ubuntu:latest as deploy
 # COPY --from=builder /usr/src/project/build/bin/example_server .
 COPY --from=builder /usr/src/projects/iceberg-webserver/build/bin/server .
 COPY --from=builder /usr/src/projects/iceberg-webserver/build/config ./config
-COPY --from=builder /usr/src/projects/iceberg-webserver/file1 /usr/src/projects/iceberg-webserver/file1
-COPY --from=builder /usr/src/projects/iceberg-webserver/file2 /usr/src/projects/iceberg-webserver/file2
-COPY --from=builder /usr/src/projects/iceberg-webserver/file2 /usr/src/projects/iceberg-webserver/file2
+COPY --from=builder /usr/src/projects/iceberg-webserver/static/file1 /usr/src/projects/iceberg-webserver/static/file1
+COPY --from=builder /usr/src/projects/iceberg-webserver/static/file2 /usr/src/projects/iceberg-webserver/static/file2
 COPY --from=builder /usr/src/projects/iceberg-webserver/tests/static_file /usr/src/projects/iceberg-webserver/tests/static_file
 
 # TODO(!): Expose some port(s)
