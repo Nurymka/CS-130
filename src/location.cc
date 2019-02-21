@@ -39,18 +39,17 @@ LocationMap LocationUtils::getLocationMapFrom(const NginxConfig& config) {
 
 LocationInfo* LocationUtils::getLongestMatchingLocation(const string& reqLocation,
   const LocationMap& locMap) {
-  for (auto& locMapEntry : locMap) {
-    string regLocation = locMapEntry.first;
-    int regLocationDepth = LocationUtils::getLocationDepth(regLocation);
+  string str = reqLocation;
 
-    if (regLocationDepth == -1)
-      return nullptr;
-
-    string stripReqLocation = LocationUtils::extractPathWithDepth(reqLocation, regLocationDepth);
-    if (regLocation == stripReqLocation)
-      return locMapEntry.second;
+  while (str.length() > 0) {
+    if (locMap.find(str) != locMap.end()) {
+     return locMap.at(str);
+    }
+    size_t index = str.rfind('/');
+    if (index != string::npos) {
+      str.erase(index);
+    }
   }
-
   return nullptr;
 }
 

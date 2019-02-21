@@ -4,33 +4,43 @@ PORT_NO=8080
 SERVER_URL="http://localhost:$PORT_NO"
 
 # generate tmp config file
-TMP_CONFIG="tmp_config"
+mkdir .tmp/
+TMP_CONFIG=".tmp/tmp_config"
+ROOT="$(pwd)"
 echo "
-http {
-    server {
-        listen $PORT_NO;
-        location /echo {
-            echo;
-        }
-        location /static {
-            root /usr/src/projects/iceberg-webserver/file1/;
-        }
-    }
+port 8080;
+
+root $ROOT;
+
+handler echo {
+  location /echo;
 }
+
+handler static {
+  location /static;
+  root .tmp/static/;
+}
+
+handler status {
+  location /status;
+}
+
 " > "$TMP_CONFIG"
 
 # Start the webserver
-./server tmp_config &> /dev/null &
+./server "$TMP_CONFIG" &> /dev/null &
 SERVER_PID=$!
 
 # Stops the webserver
 kill_server() {
+    #rm -rf .tmp/
     kill -9 "$SERVER_PID"
 }
 
 # Run the tests
+OUTPUT_FILE=".tmp/test.out"
+
 echo "Testing 200 response to valid Echo GET request..."
-OUTPUT_FILE=test.out
 curl "$SERVER_URL/echo" -sv &> "$OUTPUT_FILE"
 cat "$OUTPUT_FILE" | grep "200 OK"
 
@@ -43,9 +53,13 @@ else
     exit 1
 fi
 
+echo "Generating test static files"
+STATIC_FILE_CONTENT="THIS IS A TEST STATIC FILE"
+mkdir .tmp/static
+echo "$STATIC_FILE_CONTENT" > .tmp/static/static.txt
+
 echo "Testing 200 response to valid Static GET request..."
-OUTPUT_FILE=test.out
-curl "$SERVER_URL/static/index.html" -sv &> "$OUTPUT_FILE"
+curl "$SERVER_URL/static/static.txt" -sv &> "$OUTPUT_FILE"
 cat "$OUTPUT_FILE" | grep "200 OK"
 
 if [ $? == 0 ];
@@ -57,8 +71,18 @@ else
     exit 1
 fi
 
+cat "$OUTPUT_FILE" | grep "$STATIC_FILE_CONTENT"
+
+if [ $? == 0 ];
+then
+    echo "SUCCESS...Static file was served"
+else
+    echo "FAILURE...Static file was not served"
+    kill_server
+    exit 1
+fi
+
 echo "Testing 404 response to valid Static GET request..."
-OUTPUT_FILE=test.out
 curl "$SERVER_URL/static/file_does_not_exist" -sv &> "$OUTPUT_FILE"
 cat "$OUTPUT_FILE" | grep "404 Not Found"
 
@@ -71,10 +95,18 @@ else
     exit 1
 fi
 
-rm "$OUTPUT_FILE"
+echo "Testing 200 response to valid Status GET request..."
+curl "$SERVER_URL/status" -sv &> "$OUTPUT_FILE"
+cat "$OUTPUT_FILE" | grep "200 OK"
 
-# delete tmp config file
-rm "$TMP_CONFIG"
+if [ $? == 0 ];
+then
+    echo "SUCCESS...200 OK in response"
+else
+    echo "FAILURE...200 OK not in response"
+    kill_server
+    exit 1
+fi
 
 kill_server
 exit 0

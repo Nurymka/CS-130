@@ -29,14 +29,6 @@ TEST_F(LocationUtilsTest, SimpleLocationInfos) {
 
   auto staticEntry = locMap.find("/static1");
 
-
-  // In simple_locations_infos_config,
-  // even though handler for /very/long/path is registered second,
-  // it has to be internally sorted in descending length of locations,
-  // meaning hanlder for /static1 must come last.
-  EXPECT_NE(staticEntry, locMap.begin());
-  EXPECT_NE(staticEntry, next(locMap.begin()));
-
   ASSERT_NE(staticEntry, locMap.end());
   ASSERT_NE(staticEntry->second, nullptr);
   EXPECT_EQ(staticEntry->second->handlerType, "static");
