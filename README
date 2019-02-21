@@ -25,7 +25,7 @@ Code Structure:
 
 	  - handler.h: defines the request handler interface implemented by every request handler class implemented in our server. The request handler class definitions can also be found in the 'include' directory following this naming convention: "<type>_handler.h"
 
-	  - location.h: defines the LocationUtils class, which provides developers with several static methods to extract and identify the locations to which handlers are registered in the config file.  This header also defines the LocationComp struct, which defines a predicate for sorting keys by descending length, as well as the LocationInfo struct, which consists of a string denoting the handler type and a shared pointer to an NGinxConfig with information about said handler.  Also defined is a LocationMap, which is a map of strings to LocationInfos, using LocationComp for comparison.
+	  - location.h: defines the LocationUtils class, which provides developers with several static methods to extract and identify the locations to which handlers are registered in the config file.  This header also defines the LocationInfo struct, which consists of a string denoting the handler type and a shared pointer to an NGinxConfig with information about said handler, as well as a LocationMap, which is a map of strings to LocationInfos.
 
 	  - logger.h: defines a logging class that implements Boost logging through our code base.
 
@@ -93,12 +93,13 @@ How to add a request handler to Iceberg Webserver
 
 	This interface requires the developer to implement two functions: a static constructor and handle_request(), a function which receives an HttpRequest object as an argument, does some sort of processing, then returns a unique_pointer to a corresponding HttpResponse object.  
 
-	Each request handler should be defined in its own header file.  It is recommended to write this using the structure of "echo_handler.h" (reproduced below) for guidance.  Note that preprocessing directives (e.g. #IFNDEF) have been removed from this sample.  Also note that the handler interface as well as the httpRequest and HttpResponse classes are included.
+	Each request handler should be defined in its own header file.  It is recommended to write this using the structure of "echo_handler.h" (reproduced below) for guidance.  Note that the handler interface as well as the httpRequest and HttpResponse classes are included.
 
 			#include "handler.h"
 			#include "http_request.h"
 			#include "http_response.h"
-
+			#ifndef ECHO_HANDLER_H_
+			#define ECHO_HANDLER_H_
 
 			class EchoHandler : public Handler {
 			 public:
@@ -106,6 +107,8 @@ How to add a request handler to Iceberg Webserver
 			                         const string& root_path);
 			  unique_ptr<HttpResponse> handle_request(const HttpRequest& req);
 			};
+
+			#endif
 
 	The implementations of these functions in "echo_handler.cc" are reproduced here:
 
@@ -123,10 +126,38 @@ How to add a request handler to Iceberg Webserver
 		  return res;
 		}
 
-	If the handler you develop performs a substantial amount of workc in handle_request(), you may define other functions in the header file you create, then implement them in the corresponding source file.
+	If the handler you develop performs a substantial amount of work in handle_request(), you may define other functions in the header file you create, then implement them in the corresponding source file.
 
 	Integration:
 	Congrats!  You've created a new request handler for the Iceberg Webserver. Now it's time to add it to the server so we can use it.  First, you need to add your request handler to the config file in the 'config' directory.  Follow the syntactical guidelines laid out in the Common API spec: https://docs.google.com/document/d/1-BsDsv6BerargpyivX1T6BwPCgQ63pBpczkZajHVOtY/edit#
+
+	Example:
+		port 80;
+
+		root /usr/src/projects/iceberg-webserver/;
+
+		handler echo {
+		  location /echo;
+		}
+
+		handler static {
+		  location /static1;
+		  root static/file1;
+		}
+
+		handler static {
+		  location /static2;
+		  root static/file2;
+		}
+
+		handler status {
+		  location /status;
+		}
+
+		handler newHandler {
+		  location /newHandler;
+		}
+
 
 	When you have added your handler to the config file, navigate to "handler_manager.cc."  You will see the following function:
 
@@ -140,7 +171,7 @@ How to add a request handler to Iceberg Webserver
 			    return unique_ptr<Handler>(StaticHandler::create(config, root_path));
 			  } 
 			  else {
-			    return unique_ptr<Handler>(EchoHandler::create(config, root_path));
+			    return unique_ptr<Handler>(NotFoundHandler::create(config, root_path));
 			  }
 		}
 
