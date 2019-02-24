@@ -8,7 +8,7 @@ mkdir .tmp/
 TMP_CONFIG=".tmp/tmp_config"
 ROOT="$(pwd)"
 echo "
-port 8080;
+port $PORT_NO;
 
 root $ROOT;
 
