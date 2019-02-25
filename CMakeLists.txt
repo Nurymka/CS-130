@@ -114,6 +114,11 @@ add_test(
     COMMAND /bin/bash ${CMAKE_CURRENT_SOURCE_DIR}/tests/server_integration_test.sh
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+add_test(
+    NAME multithreading_test
+    COMMAND /bin/bash ${CMAKE_CURRENT_SOURCE_DIR}/tests/multithreading_test.sh
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # TODO(!): Update with target/test targets
 # include(cmake/CodeCoverageReportConfig.cmake)
 # generate_coverage_report(TARGETS example_server example_lib TESTS example_lib_test)
