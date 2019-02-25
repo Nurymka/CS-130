@@ -64,12 +64,12 @@ void server::handle_accept(session* new_session,
 // https://www.boost.org/doc/libs/1_45_0/doc/html/boost_asio/overview/core/threads.html
 // https://www.boost.org/doc/libs/1_45_0/doc/html/boost_asio/example/chat/chat_client.cpp
 void server::run_io_service() {
-  for (int i = 0; i < kNumWorkerThreads; i++) {
+  for (int i = 0; i < server::kNumWorkerThreads; i++) {
     boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
     workerThreads_[i] = std::move(t);
   }
 
-  for (int i = 0; i < kNumWorkerThreads; i++) {
+  for (int i = 0; i < server::kNumWorkerThreads; i++) {
     workerThreads_[i].join();
   }
 }

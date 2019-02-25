@@ -24,6 +24,7 @@ class server {
     // To initialize a thread pool, must call server::run_io_service() instead
     // of io_service.run() directly.
     void run_io_service();
+    static const size_t kNumWorkerThreads = 30;
  private:
     void start_accept();
     void handle_accept(session* new_session,
@@ -34,8 +35,6 @@ class server {
     LocationMap locationMap_;
     int16_t port_;
     string rootPath_;
-
-    const size_t kNumWorkerThreads = 15;
     unique_ptr<boost::thread[]> workerThreads_;
 };
 

@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     LocationMap locationMap = LocationUtils::getLocationMapFrom(config);
 
     DataStore::getDataStore().setLocationMap(locationMap);
-    boost::asio::io_service io_service;
+    boost::asio::io_service io_service(server::kNumWorkerThreads);
     server s(io_service, portNumber, rootPath, locationMap);
     // io_service.run();
     s.run_io_service();
