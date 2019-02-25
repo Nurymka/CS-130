@@ -1,6 +1,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <boost/thread/shared_mutex.hpp>
 #include "location.h"
 
 #ifndef DATA_STORE_H_
@@ -19,6 +20,7 @@ class DataStore {
 
  private:
   map<string, map<int, int>> requestCounts_;
+  boost::shared_mutex requestCountsMutex_;
   LocationMap locationMap_;
 };
 
