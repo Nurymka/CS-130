@@ -1,21 +1,19 @@
-#include <iostream>
-#include <fstream>
-
 #include "reverse_proxy_handler.h"
-#include "location.h"
-
-#include <iostream>
 #include <ctype.h>
-#include <cstring>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <sstream>
+#include <iostream>
 #include <fstream>
+#include <cstring>
+#include <sstream>
 #include <string>
+#include "location.h"
+
+using boost::asio::ip::tcp;
 
 Handler* ReverseProxyHandler::create(const NginxConfig& config,
                                const string& root_path) {
@@ -23,87 +21,162 @@ Handler* ReverseProxyHandler::create(const NginxConfig& config,
 }
 
 ReverseProxyHandler::ReverseProxyHandler(const NginxConfig& config, const string& root_path) {
-  // TODO(nurymka): force root & location statements inside the block config
   serverRootPath_ = root_path;
-  if (config.getTopLevelStatement("root", destinationPath_))
-    destinationPath_ = LocationUtils::extractPathOnly(destinationPath_);
-  if (config.getTopLevelStatement("location", location_))
-    location_ = LocationUtils::extractPathOnly(location_);
+  portNum_ = "80";  // by default
+
+  location_ = "/";
+  for (auto statement : config.statements_) {
+    // get location
+    if (statement->tokens_.size() == 2 && statement->tokens_[0] == "location") {
+      location_ = statement->tokens_[1];
+    } else if (statement->tokens_.size() == 2 && statement->tokens_[0] == "root") {
+      destinationPath_ = statement->tokens_[1];
+
+      // stripping protocol info if found
+      std::size_t protocol_pos = destinationPath_.find("//");
+      if (protocol_pos != std::string::npos) {
+        const int len_of_slashes = 2;
+        destinationPath_ = destinationPath_.substr(protocol_pos + len_of_slashes);
+      }
+
+      // stripping port number if found
+      std::size_t port_pos = destinationPath_.find(":");
+      if (port_pos != std::string::npos) {
+        portNum_ = destinationPath_.substr(port_pos + 1);
+        destinationPath_ = destinationPath_.substr(0, port_pos);
+      }
+    }
+  }
 }
 
 unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& req) {
- unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
+  unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
   res->version = req.version;
-  res->headers.push_back("Content-Type: text/plain");
+  bool status_redirect = true;
+  while (status_redirect) {
+    // make connection
+    boost::asio::io_service io_service;
+    tcp::resolver resolver(io_service);
+    tcp::resolver::query query(destinationPath_, portNum_);
+    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+    tcp::resolver::iterator end;
 
-  //TODO: fix hardcdded destinationPath with correct destination path 
-  // struct hostent * host = gethostbyname(destinationPath_.c_str());
-  struct hostent * host = gethostbyname("www.ucla.edu");
+    tcp::socket socket(io_service);
+    boost::system::error_code error = boost::asio::error::host_not_found;
+    while (error && endpoint_iterator != end) {
+      socket.close();
+      socket.connect(*endpoint_iterator++, error);
+    }
 
-  int sock;
-	struct sockaddr_in client;
+    std::string new_target = req.target;
+    std::size_t pref_loc = req.target.find(serverRootPath_);
+    if (pref_loc != std::string::npos && pref_loc == 0) {
+      new_target = new_target.substr(sizeof(serverRootPath_));
+    }
 
-  //TODO: configure port to be passed in as parameter into reverse proxy handler, may need to modify session.cc to do so
-	int PORT = 80;
+    // getting rid of root location eg. /ucla from /ucla/about
+    if (new_target == location_) {
+      // std::cout << "/ucla" << std::endl;
+      new_target = "/";
+    } else {
+      // std::cout << "/ucla/sometihing" << std::endl;
+      new_target = new_target.substr(1);
+      new_target = new_target.substr(new_target.find('/'));
+    }
 
-  //TODO: fix cout to utilize logger instead, also log proper diagnostic info
+    boost::asio::streambuf new_req;
+    std::ostream req_stream(&new_req);
+    req_stream << req.method << " " << new_target << " " << req.version << "\r\n";
+    req_stream << "Host: " << destinationPath_ << "\r\n";
+    req_stream << "Connection: close\r\n\r\n";
 
-  if ( (host == NULL) || (host->h_addr == NULL) ) {
-    cout << "Error retrieving DNS information." << endl;
-    res->body = "Fail";
-    return res;
-  }
+    boost::asio::write(socket, new_req);
+    // std::cout << "socket written" <<std::endl;
 
-  bzero(&client, sizeof(client));
-  client.sin_family = AF_INET;
-  client.sin_port = htons( PORT );
-  memcpy(&client.sin_addr, host->h_addr, host->h_length);
+    // read from socket
+    // https://stackoverflow.com/questions/38419969/why-boostasioasync-read-completion-
+    //         sometimes-executed-with-bytes-transferred
+    std::string soc_resp;
+    boost::asio::streambuf buf;
+    boost::system::error_code ec;
+    std::size_t bytes_read;
+    while (bytes_read = boost::asio::read(socket, buf, boost::asio::transfer_at_least(1), ec)) {
+      std::string data_read = std::string(boost::asio::buffers_begin(buf.data()),
+                                          boost::asio::buffers_begin(buf.data()) + bytes_read);
+      soc_resp += data_read;
+      buf.consume(bytes_read);
+    }
+    // checking if redirected
+    if (soc_resp.substr(0, 10) != "HTTP/1.1 3") {
+      status_redirect = false;
+    }
+    // std::cout << "status : " << status_302 << std::endl;
+    // Constants to clearify what's added
+    const std::size_t CRLF_size = 4;
+    const int len_of_code = 3;
+    const int len_of_rn = 2;
+    const int len_of_loc_name = 8;
+    bool first_hdr = true;
 
-  sock = socket(AF_INET, SOCK_STREAM, 0);
+    // socket respond: separate header and contents
+    std::size_t hdr_pos_end = soc_resp.find("\r\n\r\n");
+    // std::cout << soc_resp << std::endl;
+    std::string res_body = soc_resp.substr(hdr_pos_end + CRLF_size);
+    std::string res_hdr = soc_resp.substr(0, hdr_pos_end + 2);
 
-  if (sock < 0) {
-    cout << "Error creating socket." << endl;
-    res->body = "Fail";
-    res->status_code = 400;
-    return res;
-  }
+    int res_code;
 
-  if ( connect(sock, (struct sockaddr *)&client, sizeof(client)) < 0 ) {
-    close(sock);
-    cout << "Could not connect" << endl;
-    res->body = "Fail";
-    res->status_code = 400;
-    return res;
-  }
+    // if status is 302
+    if (status_redirect == true) {
+      for (;;) {
+        std::size_t first_hdr_end = soc_resp.find("\r\n");
+        if (first_hdr_end != std::string::npos) {
+          if (first_hdr) {
+            // get status code
+            std::string res_code_string = res_hdr.substr(res_hdr.find(" ") + 1, len_of_code);
+            // std::cout << "res code" << res_code_string << std::endl;
 
-  //TODO: set host to be correct destination path
-  string request = "GET / HTTP/1.1\r\nHost: www.ucla.edu\r\n\r\n";
-
-  if (send(sock, request.c_str(), request.length(), 0) != (int)request.length()) {
-    cout << "Error sending request." << endl;
-    res->body = "Fail";
-    res->status_code = 400;
-    return res;
-  }
-
-  char recvbuf[512];
-
-  string response;
-  int result;
-
-  do {
-	  result = recv(sock, recvbuf, 512, 0);
-	  if(result > 0){
-	    response.append(recvbuf);
-	  } 
-  } while(result > 0);
-
-
-	res->body = response;
-  res->status_code = 200;
-
-  //TODO: configure 302 redirects, properly display redirected page instead of just setting the entire http proxied response in body of redirected response
-
-
+            std::stringstream code(res_code_string);
+            code >> res_code;
+            res->status_code = res_code;
+            // make it false so it examines other header
+            first_hdr = false;
+          } else if (soc_resp.substr(0, len_of_loc_name) == "Location") {
+            // location found
+            res->headers.push_back(res_hdr.substr(0, first_hdr_end));
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+    } else {
+      // going through the header
+      for (;;) {
+        std::size_t first_hdr_end = res_hdr.find("\r\n");
+        if (first_hdr_end != std::string::npos) {
+          // if the first header with status code
+          if (first_hdr) {
+             // get status code
+            std::string res_code_string = res_hdr.substr(res_hdr.find(" ") + 1, len_of_code);
+            std::stringstream code(res_code_string);
+            code >> res_code;
+            res->status_code = res_code;
+            // std::cout << "status_code 200? " << res_code_string << ":" << res_code << std::endl;
+            // make it false so it examines other header
+            first_hdr = false;
+            res_hdr = res_hdr.substr(first_hdr_end + 2);
+          } else {
+            res->headers.push_back(res_hdr.substr(0, first_hdr_end));
+            res_hdr = res_hdr.substr(first_hdr_end + 2);
+            // std::cout << res_hdr << std::endl;
+          }
+        } else {
+          break;
+        }
+      }  // status is not 302
+    }
+    res->body = res_body;
+  }  // end while
   return res;
 }

@@ -5,9 +5,12 @@
 #include "handler.h"
 #include "http_request.h"
 #include "http_response.h"
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+#include <boost/array.hpp>
 
-#ifndef REVERSE_PROXY_HANDLER_H_
-#define REVERSE_PROXY_HANDLER_H_
+#ifndef ICEBERG_WEBSERVER_INCLUDE_REVERSE_PROXY_HANDLER_H__
+#define ICEBERG_WEBSERVER_INCLUDE_REVERSE_PROXY_HANDLER_H_
 
 class ReverseProxyHandler : public Handler {
  public:
@@ -21,6 +24,7 @@ class ReverseProxyHandler : public Handler {
   string serverRootPath_;
   string destinationPath_;
   string location_;
+  string portNum_;
 };
 
-#endif  // REVERSE_PROXY_HANDLER_H_
+#endif  // ICEBERG_WEBSERVER_INCLUDE_REVERSE_PROXY_HANDLER_H_
