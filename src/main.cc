@@ -56,7 +56,8 @@ int main(int argc, char* argv[]) {
     DataStore::getDataStore().setLocationMap(locationMap);
     boost::asio::io_service io_service;
     server s(io_service, portNumber, rootPath, locationMap);
-    io_service.run();
+    // io_service.run();
+    s.run_io_service();
   }
   catch (std::exception& e) {
     BOOST_LOG_SEV(Logger::get(), CRITICAL)

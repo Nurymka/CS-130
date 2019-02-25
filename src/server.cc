@@ -12,6 +12,7 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include "session.h"
 #include "server.h"
 #include "logger.h"
@@ -27,7 +28,8 @@ server::server(boost::asio::io_service& io_service,
     acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
     rootPath_(rootPath),
     port_(port),
-    locationMap_(locationMap) {
+    locationMap_(locationMap),
+    workerThreads_(new boost::thread[kNumWorkerThreads]) {
   BOOST_LOG_SEV(Logger::get(), INFO) << "Server starting at port: " << port;
   start_accept();
 }
@@ -56,4 +58,18 @@ void server::handle_accept(session* new_session,
     delete new_session;
   }
   start_accept();
+}
+
+// Adapted from
+// https://www.boost.org/doc/libs/1_45_0/doc/html/boost_asio/overview/core/threads.html
+// https://www.boost.org/doc/libs/1_45_0/doc/html/boost_asio/example/chat/chat_client.cpp
+void server::run_io_service() {
+  for (int i = 0; i < kNumWorkerThreads; i++) {
+    boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service_));
+    workerThreads_[i] = std::move(t);
+  }
+
+  for (int i = 0; i < kNumWorkerThreads; i++) {
+    workerThreads_[i].join();
+  }
 }

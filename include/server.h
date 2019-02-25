@@ -2,6 +2,7 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 
 #include "session.h"
 #include "handler_manager.h"
@@ -20,6 +21,9 @@ class server {
           LocationMap locationMap);
     ~server();
 
+    // To initialize a thread pool, must call server::run_io_service() instead
+    // of io_service.run() directly.
+    void run_io_service();
  private:
     void start_accept();
     void handle_accept(session* new_session,
@@ -30,6 +34,9 @@ class server {
     LocationMap locationMap_;
     int16_t port_;
     string rootPath_;
+
+    const size_t kNumWorkerThreads = 15;
+    unique_ptr<boost::thread[]> workerThreads_;
 };
 
 #endif  // SERVER_H_
