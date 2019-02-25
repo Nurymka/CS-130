@@ -66,41 +66,6 @@ string LocationUtils::extractPathOnly(const string& location) {
   return res;
 }
 
-int LocationUtils::getLocationDepth(const string& location) {
-  if (location == "/")
-    return 0;
-
-  int depth = 0;
-  string path = LocationUtils::extractPathOnly(location);
-  for (int i = 0; i < path.length(); i++) {
-    if (path[i] == '/')
-      depth++;
-  }
-
-  if (depth == 0)
-    return -1;
-
-  return depth;
-}
-
-string LocationUtils::extractPathWithDepth(const string& location, size_t depth) {
-  if (depth == 0)
-    return "/";
-
-  string path = LocationUtils::extractPathOnly(location);
-  string res;
-  int slashOccurs = 0;
-  for (int i = 0; i < path.length(); i++) {
-    if (path[i] == '/')
-      slashOccurs++;
-    if (slashOccurs > depth)
-      break;
-    res += path[i];
-  }
-
-  return res;
-}
-
 string LocationUtils::concatPaths(string fPath, string sPath) {
   if (fPath.at(fPath.length() - 1) == '/')
     fPath.erase(fPath.end() - 1, fPath.end());

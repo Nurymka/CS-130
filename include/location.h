@@ -33,19 +33,6 @@ class LocationUtils {
 
   // Returns the concatenated result of two paths.
   static string concatPaths(string fPath, string sPath);
-
- private:
-  // Returns the number of path components in the location.
-  // Assumes that the input doesn't include the host.
-  // Returns -1 in case there are no '/' chars present.
-  // For example, "/static/file1" would return 2.
-  static int getLocationDepth(const string& location);
-
-  // Returns the first n of path components specified by 'depth'.
-  // If specified depth is higher than number of path components, the original
-  // location is returned.
-  // For example, "/static/file1" with depth 1 returns "/static".
-  static string extractPathWithDepth(const string& location, size_t depth);
 };
 
 #endif  // LOCATION_H_
