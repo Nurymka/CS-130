@@ -1,0 +1,6 @@
+root /usr/src/projects/iceberg-webserver;
+
+handler proxy {
+  location /ucla;
+  root http://www.ucla.edu;
+}
