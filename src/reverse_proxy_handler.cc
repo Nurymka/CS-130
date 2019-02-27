@@ -83,6 +83,10 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
       new_target = new_target.substr(1);
       new_target = new_target.substr(new_target.find('/'));
     }
+    // adding "/" in the back of target
+    if (new_target.back() != '/') {
+      new_target += "/";
+    }
 
     boost::asio::streambuf new_req;
     std::ostream req_stream(&new_req);
@@ -106,9 +110,13 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
       soc_resp += data_read;
       buf.consume(bytes_read);
     }
-    // checking if redirected
+    // checking if redirected and ok status
+    bool status_ok = true;
     if (soc_resp.substr(0, 10) != "HTTP/1.1 3") {
       status_redirect = false;
+      if (soc_resp.substr(0, 10) != "HTTP/1.1 2") {
+        status_ok = false;
+      }
     }
     // std::cout << "status : " << status_302 << std::endl;
     // Constants to clearify what's added
@@ -147,10 +155,11 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
             break;
           }
         } else {
+          res->body = res_body;
           break;
         }
       }
-    } else {
+    } else if (status_ok == true) {
       // going through the header
       for (;;) {
         std::size_t first_hdr_end = res_hdr.find("\r\n");
@@ -172,11 +181,14 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
             // std::cout << res_hdr << std::endl;
           }
         } else {
+          res->body = res_body;
           break;
         }
-      }  // status is not 302
+      }
+    } else {
+      //status not found
+      res->status_code = 400;
     }
-    res->body = res_body;
   }  // end while
   return res;
 }
