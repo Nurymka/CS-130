@@ -53,7 +53,7 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
   unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
   res->version = req.version;
   bool status_redirect = true;
-  while (status_redirect) {
+  
     // make connection
     boost::asio::io_service io_service;
     tcp::resolver resolver(io_service);
@@ -132,30 +132,30 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
 
     // if status is 302
     if (status_redirect == true) {
-      for (;;) {
-        std::size_t first_hdr_end = soc_resp.find("\r\n");
-        if (first_hdr_end != std::string::npos) {
-          if (first_hdr) {
-            // get status code
-            std::string res_code_string = res_hdr.substr(res_hdr.find(" ") + 1, len_of_code);
-            // std::cout << "res code" << res_code_string << std::endl;
+      std::cout << ".............REDIRECT\n";
+      std::size_t first_hdr_end = res_hdr.find("\r\n");
+      if (first_hdr_end != std::string::npos) {
+        if (first_hdr) {
+          // get status code
+          std::string res_code_string = res_hdr.substr(res_hdr.find(" ") + 1, len_of_code);
+          // std::cout << "res code" << res_code_string << std::endl;
 
-            std::stringstream code(res_code_string);
-            code >> res_code;
-            res->status_code = res_code;
-            // make it false so it examines other header
-            first_hdr = false;
-          } else if (soc_resp.substr(0, len_of_loc_name) == "Location") {
-            // location found
-            res->headers.push_back(res_hdr.substr(0, first_hdr_end));
-            break;
-          }
-        } else {
-          res->body = res_body;
-          break;
+          std::stringstream code(res_code_string);
+          code >> res_code;
+          res->status_code = res_code;
+          // make it false so it examines other header
+          first_hdr = false;
         }
       }
-    } else if (status_ok == true) {
+      std::size_t location_pos = res_hdr.find("Location");
+      if (location_pos != std::string::npos) {
+        res_hdr = res_hdr.substr(location_pos + len_of_rn);
+        std::size_t end_pos = res_hdr.find("\r\n");
+        if (end_pos != std::string::npos) {
+          res->headers.push_back(res_hdr.substr(0, end_pos));
+        }
+      }
+    } else {
       // going through the header
       for (;;) {
         std::size_t first_hdr_end = res_hdr.find("\r\n");
@@ -181,10 +181,6 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
           break;
         }
       }
-    } else {
-      //status not found
-      res->status_code = 400;
     }
-  }  // end while
   return res;
 }
