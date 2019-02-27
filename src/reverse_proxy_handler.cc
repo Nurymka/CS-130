@@ -83,10 +83,6 @@ unique_ptr<HttpResponse> ReverseProxyHandler::handle_request(const HttpRequest& 
       new_target = new_target.substr(1);
       new_target = new_target.substr(new_target.find('/'));
     }
-    // adding "/" in the back of target
-    if (new_target.back() != '/') {
-      new_target += "/";
-    }
 
     boost::asio::streambuf new_req;
     std::ostream req_stream(&new_req);
