@@ -49,7 +49,7 @@ TEST_F(ReverseProxyHandlerTest, TestSimpleProxy) {
 
 TEST_F(ReverseProxyHandlerTest, TestGetSubdirectoryProxy) {
   string input;
-  input += "GET /ucla/about HTTP/1.1\r\n";
+  input += "GET /ucla/about/ HTTP/1.1\r\n";
   input += "Host: localhost\r\n";
   input += "User-Agent: curl/7.58.0\r\n";
   input += "Accept: */*\r\n";
