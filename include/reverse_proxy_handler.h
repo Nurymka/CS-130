@@ -9,8 +9,8 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
-#ifndef ICEBERG_WEBSERVER_INCLUDE_REVERSE_PROXY_HANDLER_H__
-#define ICEBERG_WEBSERVER_INCLUDE_REVERSE_PROXY_HANDLER_H_
+#ifndef REVERSE_PROXY_HANDLER_H_
+#define REVERSE_PROXY_HANDLER_H_
 
 class ReverseProxyHandler : public Handler {
  public:
@@ -27,4 +27,4 @@ class ReverseProxyHandler : public Handler {
   string portNum_;
 };
 
-#endif  // ICEBERG_WEBSERVER_INCLUDE_REVERSE_PROXY_HANDLER_H_
+#endif  // REVERSE_PROXY_HANDLER_H_

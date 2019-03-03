@@ -61,9 +61,10 @@ TEST_F(ReverseProxyHandlerTest, TestGetSubdirectoryProxy) {
   string responseStr = res->to_string();
   EXPECT_THAT(responseStr, StartsWith("HTTP/1.1 200 OK\r\n"));
   EXPECT_THAT(responseStr, HasSubstr("Content-Type: text/html"));
-  EXPECT_THAT(responseStr, HasSubstr("For nearly 100 years, ucla has been a pioneer, persevering through impossibility, turning the futile into the attainable."));
+  EXPECT_THAT(responseStr, HasSubstr("For nearly 100 years, ucla has been a pioneer, "
+              "persevering through impossibility, turning the futile into the attainable."));
 }
 
 
 
-} //namespace
+}  // namespace
