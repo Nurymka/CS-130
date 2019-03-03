@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 
 #ifndef HTTP_REQUEST_H_
 #define HTTP_REQUEST_H_
@@ -29,16 +30,17 @@ class HttpRequest {
 
     // messageBody:
     string body;
+    unordered_map <string, string> data;
 
     int contentLength;
 
-    bool parse(const string& data);
+    bool parse(const string& raw_message);
     string to_string() const;
 
  private:
     vector<string> split_str(const string& s, string c);
-
     string clean_str(string s);
+    string decode_url(string s);
 
     enum ParseState {
       START_LINE = 0,

@@ -1,8 +1,11 @@
+#include <ctype.h>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 #include <boost/algorithm/string.hpp>
 #include "http_request.h"
 
@@ -16,8 +19,8 @@ using namespace std;
 // https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/example/cpp11/http/server/request_parser.cpp
 
 
-bool HttpRequest::parse(const string& data) {
-    std::istringstream input(data);
+bool HttpRequest::parse(const string& raw_message) {
+    std::istringstream input(raw_message);
     string line;
 
     // Not assigning directly to the instance methods to preserve atomicity during parsing
@@ -26,6 +29,7 @@ bool HttpRequest::parse(const string& data) {
     string _version;
     vector<string> _headers;
     string _body;
+    unordered_map<string, string> _data;
     int _contentLength = 0;
 
     ParseState state = START_LINE;
@@ -78,12 +82,19 @@ bool HttpRequest::parse(const string& data) {
         _body += c;
         bodyRead++;
       }
-      // if body length is less than specified content-length should this be error?
-      // Example, could be seen as data loss/incomplete transfer.
-      // body length greater than specified content-length is NOT treated as error
-      // (simply ignore any message content greater than specified content-length)
-      if (_body.length() != _contentLength) {
-        return false;
+    }
+
+    // Parse POST data.
+    if (_method == "POST") {
+      vector<string> attrs = split_str(_body, "&");
+      for (auto const &attr : attrs) {
+        vector<string> name_value = split_str(attr, "=");
+        if (name_value.size() != 2) {
+          continue;
+        }
+        string name = decode_url(name_value[0]);
+        string value = decode_url(name_value[1]);
+        _data[name] = value;
       }
     }
 
@@ -92,6 +103,7 @@ bool HttpRequest::parse(const string& data) {
     version = _version;
     headers = _headers;
     body = _body;
+    data = _data;
     contentLength = _contentLength;
 
     return true;
@@ -108,6 +120,7 @@ string HttpRequest::to_string() const {
     return oss.str();
 }
 
+
 vector<string> HttpRequest::split_str(const string& s, string c) {
     vector<string> v;
     boost::algorithm::split(v, s, boost::is_any_of(c));
@@ -121,4 +134,42 @@ string HttpRequest::clean_str(string s) {
     s.erase(s.size() - 1);
   }
   return s;
+}
+
+// adapted from https://stackoverflow.com/questions/2673207/c-c-url-decode-library
+string HttpRequest::decode_url(string s) {
+  const char* src = s.c_str();
+  char* dst = new char[s.length()+1];
+  char* decoded = dst;  // save pointer to beginning of string to return at the end
+  char a, b;
+  while (*src) {
+    if ((*src == '%') &&
+        ((a = src[1]) && (b = src[2])) &&
+        (isxdigit(a) && isxdigit(b))) {
+          // decode char (e.g. "%26" decoded is '&')
+          if (a >= 'a')
+            a -= 'a'-'A';
+          if (a >= 'A')
+            a -= ('A' - 10);
+          else
+            a -= '0';
+          if (b >= 'a')
+            b -= 'a'-'A';
+          if (b >= 'A')
+            b -= ('A' - 10);
+          else
+            b -= '0';
+          *dst++ = 16*a+b;
+          src+=3;
+      } else if (*src == '+') {
+        // replace with space
+        *dst++ = ' ';
+        src++;
+      } else {
+        // simply copy over char
+        *dst++ = *src++;
+      }
+  }
+  *dst++ = '\0';  // end c-string with null-byte
+  return string(decoded);
 }

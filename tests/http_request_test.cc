@@ -13,10 +13,10 @@ TEST_F(HttpRequestTest, CheckValidParsing) {
     input += "Host: localhost:8080\r\n";
     input += "User-Agent: curl/7.58.0\r\n";
     input += "Accept: */*\r\n";
-    input += "Content-Length: 4\r\n";
+    input += "Content-Length: 100\r\n";
     input += "Content-Type: application/x-www-form-urlencoded\r\n";
     input += "\r\n";
-    input += "TEST";
+    input += "firstname=First+Name%26other&lastname=Last%2Bthis%3Danother";
 
     bool success = req.parse(input);
     EXPECT_TRUE(success);
@@ -24,7 +24,10 @@ TEST_F(HttpRequestTest, CheckValidParsing) {
     EXPECT_EQ(req.target, "/");
     EXPECT_EQ(req.version, "HTTP/1.1");
     EXPECT_EQ(req.headers.size(), 5);
-    EXPECT_EQ(req.body, "TEST");
+    EXPECT_EQ(req.body, "firstname=First+Name%26other&lastname=Last%2Bthis%3Danother");
+    EXPECT_EQ(req.data.size(), 2);
+    EXPECT_EQ(req.data["firstname"], "First Name&other");
+    EXPECT_EQ(req.data["lastname"], "Last+this=another");
     EXPECT_EQ(req.to_string(), input);
 }
 
@@ -101,21 +104,6 @@ TEST_F(HttpRequestTest, CheckBodyLength) {
 
     req.parse(input);
     EXPECT_EQ(req.body.length(), 4);
-}
-
-TEST_F(HttpRequestTest, ContentLengthLargerThanBodyLength) {
-    string input;
-    input += "POST / HTTP/1.1\r\n";
-    input += "Host: localhost:8080\r\n";
-    input += "User-Agent: curl/7.58.0\r\n";
-    input += "Accept: */*\r\n";
-    input += "Content-Length: 5\r\n";
-    input += "Content-Type: application/x-www-form-urlencoded\r\n";
-    input += "\r\n";
-    input += "TEST";
-
-    bool success = req.parse(input);
-    EXPECT_FALSE(success);
 }
 
 TEST_F(HttpRequestTest, EmptyBody) {
