@@ -1,0 +1,44 @@
+#include <string>
+#include <boost/format.hpp>
+#include "meme_db.h"
+
+using namespace std;
+
+// adapted from https://www.tutorialspoint.com/sqlite/sqlite_c_cpp.htm
+
+MemeDB::MemeDB() {
+  db_path_ = MEME_DB_PATH;
+  init();
+}
+
+MemeDB::MemeDB(string db_path) : db_path_(db_path) {
+  init();
+}
+
+MemeDB::~MemeDB() {
+  sqlite3_close(db_);
+}
+
+void MemeDB::init() {
+  sqlite3_open(db_path_.c_str(), &db_);
+  const char* sql = "CREATE TABLE IF NOT EXISTS Meme("  \
+    "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," \
+    "img_path TEXT NOT NULL," \
+    "top_text TEXT NOT NULL," \
+    "bottom_text TEXT NOT NULL);";
+  sqlite3_exec(db_, sql, NULL, NULL, NULL);
+}
+
+int MemeDB::add(string img_path, string top_text, string bottom_text) {
+  const char* sql = "INSERT INTO Meme(img_path, top_text, bottom_text) " \
+         "VALUES ('%s', '%s', '%s');";
+  boost::format fmt = boost::format(sql) % img_path % top_text % bottom_text;
+  int rc = sqlite3_exec(db_, fmt.str().c_str(), NULL, NULL, NULL);
+
+  if (rc == SQLITE_OK) {
+    return sqlite3_last_insert_rowid(db_);
+  } else {
+    return -1;
+  }
+}
+
