@@ -33,6 +33,8 @@ find_package(Boost 1.60 REQUIRED COMPONENTS system)
 find_package(Boost 1.60 REQUIRED COMPONENTS log)
 message(STATUS "Boost version: ${Boost_VERSION}")
 
+include(lib/sqlite3-cmake/CMakeLists.txt)
+
 include_directories(include)
 
 # TODO(!): Update name and srcs
