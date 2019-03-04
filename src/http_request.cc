@@ -63,7 +63,7 @@ bool HttpRequest::parse(const string& raw_message) {
             if (headerStrs.size() < 1 || headerStrs[1].at(0) != ' ') {
               return false;
             }
-            if (headerStrs[0].compare("Content-Length") == 0) {
+            if (boost::iequals(headerStrs[0], "Content-Length")) {
               try {
                 string len = headerStrs[1].substr(1, headerStrs[1].length());
                 _contentLength = atoi(len.c_str());

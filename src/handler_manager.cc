@@ -7,6 +7,7 @@
 #include "status_handler.h"
 #include "reverse_proxy_handler.h"
 #include "sleep_handler.h"
+#include "new_meme_handler.h"
 
 unique_ptr<Handler> HandlerManager::createByName(const string& name,
                                                  const NginxConfig& config,
@@ -23,6 +24,8 @@ unique_ptr<Handler> HandlerManager::createByName(const string& name,
     return unique_ptr<Handler>(ReverseProxyHandler::create(config, root_path));
   } else if (name == "sleep") {
     return unique_ptr<Handler>(SleepHandler::create(config, root_path));
+  } else if (name == "new_meme") {
+    return unique_ptr<Handler>(NewMemeHandler::create(config, root_path));
   } else {
     return unique_ptr<Handler>(NotFoundHandler::create(config, root_path));
   }

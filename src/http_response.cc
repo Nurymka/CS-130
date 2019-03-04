@@ -25,6 +25,9 @@ string HttpResponse::to_string() {
     case 200:
         status = "OK";
         break;
+    case 201:
+        status = "Created";
+        break;
     case 302:
         status = "Redirect";
         break;

@@ -24,3 +24,7 @@ handler proxy {
   location /ucla;
   root http://www.ucla.edu;
 }
+
+handler new_meme {
+  location /meme/create;
+}
