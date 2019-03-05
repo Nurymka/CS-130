@@ -98,8 +98,27 @@ bool HttpRequest::parse(const string& raw_message) {
       }
     }
 
+    // Parse GET data
+    if(_method == "GET") {
+      vector<string> target_parts = split_str(_target, "?");
+      target = target_parts[0];
+      if (target_parts.size() > 1) {
+        vector<string> attrs = split_str(target_parts[1], "&");
+        for (auto const &attr : attrs) {
+          vector<string> name_value = split_str(attr, "=");
+          if (name_value.size() != 2) {
+            continue;
+          }
+          string name = decode_url(name_value[0]);
+          string value = decode_url(name_value[1]);
+          _data[name] = value;
+        }
+      }
+    } else {
+      target = _target;
+    }
+
     method = _method;
-    target = _target;
     version = _version;
     headers = _headers;
     body = _body;

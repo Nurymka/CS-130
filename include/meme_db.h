@@ -1,5 +1,6 @@
 #include <string>
 #include "sqlite3.h"
+#include "meme.h"
 
 #ifndef MEME_DB_H_
 #define MEME_DB_H_
@@ -17,6 +18,7 @@ class MemeDB {
   // Adds a new entry to Meme table.
   // Returns the id of the created entry upon success, -1 upon error.
   int add(string img_path, string top_text, string bottom_text);
+  Meme findByID(string id);
 
  private:
   void init();

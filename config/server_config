@@ -28,3 +28,7 @@ handler proxy {
 handler new_meme {
   location /meme/create;
 }
+
+handler view_meme {
+  location /meme/view;
+}

@@ -47,3 +47,9 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
   }
 }
 
+Meme MemeDB::findByID(string id) {
+  return "I haven't finished this function yet";
+}
+
+
+
