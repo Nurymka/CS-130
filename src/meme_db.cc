@@ -30,12 +30,17 @@ void MemeDB::init() {
 }
 
 int MemeDB::add(string img_path, string top_text, string bottom_text) {
-  const char* sql = "INSERT INTO Meme(img_path, top_text, bottom_text) " \
-         "VALUES ('%s', '%s', '%s');";
-  boost::format fmt = boost::format(sql) % img_path % top_text % bottom_text;
-  int rc = sqlite3_exec(db_, fmt.str().c_str(), NULL, NULL, NULL);
+  // https://stackoverflow.com/questions/36815112/c-and-sqlite-how-to-execute-a-query-formed-by-user-input
+  // uses prepare and binding to protect against sql injection
+  sqlite3_stmt* stmt;
+  const char* sql = "INSERT INTO Meme(img_path, top_text, bottom_text) VALUES (?,?,?);";
+  sqlite3_prepare(db_, sql, -1, &stmt, NULL);
+  sqlite3_bind_text(stmt, 1, img_path.c_str(), img_path.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 2, top_text.c_str(), top_text.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 3, bottom_text.c_str(), bottom_text.length(), SQLITE_TRANSIENT);
+  int rc = sqlite3_step(stmt);
 
-  if (rc == SQLITE_OK) {
+  if (rc == SQLITE_DONE) {
     return sqlite3_last_insert_rowid(db_);
   } else {
     return -1;
