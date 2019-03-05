@@ -8,12 +8,12 @@ handler echo {
 
 handler static {
   location /static1;
-  root static/file1;
+  root public/file1;
 }
 
 handler static {
   location /static2;
-  root static/file2;
+  root public/file2;
 }
 
 handler status {
