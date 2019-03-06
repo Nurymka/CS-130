@@ -52,15 +52,19 @@ add_library(sleep_handler_lib src/sleep_handler.cc)
 add_library(status_handler_lib src/status_handler.cc)
 add_library(proxy_lib src/reverse_proxy_handler.cc)
 add_library(new_meme_handler_lib src/new_meme_handler.cc)
+add_library(view_meme_handler_lib src/view_meme_handler.cc)
+add_library(list_meme_handler_lib src/list_meme_handler.cc)
 add_library(handler_manager_lib src/handler_manager.cc)
 add_library(logger_lib src/logger.cc)
 add_library(location_lib src/location.cc)
 add_library(data_store_lib src/data_store.cc)
 add_library(meme_db src/meme_db.cc)
+add_library(meme_lib src/meme.cc)
+
 target_link_libraries(config_parser_lib echo_handler_lib)
 target_link_libraries(http_request_lib Boost::system session_lib)
 target_link_libraries(session_lib Boost::system http_request_lib http_response_lib handler_manager_lib
-logger_lib config_parser_lib data_store_lib)
+                      logger_lib config_parser_lib data_store_lib)
 target_link_libraries(server_lib Boost::system session_lib logger_lib)
 target_link_libraries(echo_handler_lib http_request_lib http_response_lib)
 target_link_libraries(static_handler_lib http_request_lib http_response_lib config_parser_lib location_lib)
@@ -68,11 +72,14 @@ target_link_libraries(not_found_handler_lib http_request_lib http_response_lib c
 target_link_libraries(status_handler_lib http_request_lib http_response_lib data_store_lib)
 target_link_libraries(proxy_lib http_request_lib http_response_lib config_parser_lib)
 target_link_libraries(new_meme_handler_lib http_request_lib http_response_lib config_parser_lib meme_db)
+target_link_libraries(view_meme_handler_lib http_request_lib http_response_lib config_parser_lib meme_db meme_lib)
+target_link_libraries(list_meme_handler_lib http_request_lib http_response_lib config_parser_lib meme_db meme_lib)
 target_link_libraries(meme_db sqlite3 ${CMAKE_DL_LIBS})
 target_link_libraries(handler_manager_lib echo_handler_lib static_handler_lib not_found_handler_lib
                       bad_request_handler_lib status_handler_lib proxy_lib sleep_handler_lib
-                      new_meme_handler_lib)
+                      new_meme_handler_lib view_meme_handler_lib list_meme_handler_lib)
 target_link_libraries(logger_lib Boost::log)
+target_link_libraries(meme_lib)
 
 # TODO(!): Update executable name, srcs, and deps
 # add_executable(example_server src/example_server_main.cc)

@@ -28,9 +28,9 @@ unique_ptr<Handler> HandlerManager::createByName(const string& name,
     return unique_ptr<Handler>(SleepHandler::create(config, root_path));
   } else if (name == "new_meme") {
     return unique_ptr<Handler>(NewMemeHandler::create(config, root_path));
-  } else if (name == "view_meme" {
+  } else if (name == "view_meme") {
     return unique_ptr<Handler>(ViewMemeHandler::create(config, root_path));
-  } else if (name == "list_meme" {
+  } else if (name == "list_meme") {
     return unique_ptr<Handler>(ListMemeHandler::create(config, root_path));
   } else {
     return unique_ptr<Handler>(NotFoundHandler::create(config, root_path));

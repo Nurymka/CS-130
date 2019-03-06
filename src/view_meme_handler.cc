@@ -30,11 +30,11 @@ unique_ptr<HttpResponse> ViewMemeHandler::handle_request(const HttpRequest& req)
 
   if (req.method == "GET" && req.data.find("id") != req.data.end()) {
     string id = req.data.at("id");
-    Meme found_meme = memeDB_->findByID(id);
+    unique_ptr<Meme> found_meme = memeDB_->findByID(id);
 
-    if(found_meme != "") {
-      //TODO: Package Meme contents into JSON/specified format for HTTP response
-      continue;
+    if(found_meme) {
+      res->status_code = 200;
+      //I will finish this function in the next change.  The current change is becoming pretty big.
     } else {
       res->status_code = 400;
     }

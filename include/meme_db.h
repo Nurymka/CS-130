@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include "sqlite3.h"
 #include "meme.h"
 
@@ -19,6 +20,7 @@ class MemeDB {
   // Returns the id of the created entry upon success, -1 upon error.
   int add(string img_path, string top_text, string bottom_text);
   unique_ptr<Meme> findByID(string id);
+  vector<Meme> findAll();
 
  private:
   void init();
