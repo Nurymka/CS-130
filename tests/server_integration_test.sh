@@ -33,7 +33,7 @@ SERVER_PID=$!
 
 # Stops the webserver
 kill_server() {
-    #rm -rf .tmp/
+    rm -rf .tmp/
     kill -9 "$SERVER_PID"
 }
 
