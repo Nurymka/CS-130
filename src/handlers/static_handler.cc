@@ -41,7 +41,11 @@ unique_ptr<HttpResponse> StaticHandler::handle_request(const HttpRequest& req) {
 
   string file_path;
   file_path = LocationUtils::concatPaths(serverRootPath_, staticRootPath_);
-  file_path = LocationUtils::concatPaths(file_path, req.target.substr(location_.length()));
+  
+  if (req.target.substr(location_.length()).length() <= 1)
+    file_path = LocationUtils::concatPaths(file_path, "index.html");
+  else
+    file_path = LocationUtils::concatPaths(file_path, req.target.substr(location_.length()));
 
   // https://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
   std::ifstream t(file_path);
