@@ -79,7 +79,6 @@ target_link_libraries(handler_manager_lib echo_handler_lib static_handler_lib no
                       bad_request_handler_lib status_handler_lib proxy_lib sleep_handler_lib
                       new_meme_handler_lib view_meme_handler_lib list_meme_handler_lib)
 target_link_libraries(logger_lib Boost::log)
-target_link_libraries(meme_lib)
 
 # TODO(!): Update executable name, srcs, and deps
 # add_executable(example_server src/example_server_main.cc)

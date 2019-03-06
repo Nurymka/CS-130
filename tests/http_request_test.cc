@@ -7,7 +7,7 @@ class HttpRequestTest: public ::testing::Test {
   HttpRequest req;
 };
 
-TEST_F(HttpRequestTest, CheckValidParsing) {
+TEST_F(HttpRequestTest, CheckValidPOSTParsing) {
     string input;
     input += "POST / HTTP/1.1\r\n";
     input += "Host: localhost:8080\r\n";
@@ -25,6 +25,24 @@ TEST_F(HttpRequestTest, CheckValidParsing) {
     EXPECT_EQ(req.version, "HTTP/1.1");
     EXPECT_EQ(req.headers.size(), 5);
     EXPECT_EQ(req.body, "firstname=First+Name%26other&lastname=Last%2Bthis%3Danother");
+    EXPECT_EQ(req.data.size(), 2);
+    EXPECT_EQ(req.data["firstname"], "First Name&other");
+    EXPECT_EQ(req.data["lastname"], "Last+this=another");
+    EXPECT_EQ(req.to_string(), input);
+}
+
+TEST_F(HttpRequestTest, CheckValidGETParsing) {
+    string input;
+    input += "GET /test_target/here?firstname=First+Name%26other&lastname=Last%2Bthis%3Danother HTTP/1.1\r\n";
+    input += "Host: localhost:8080\r\n";
+    input += "\r\n";
+    
+
+    bool success = req.parse(input);
+    EXPECT_TRUE(success);
+    EXPECT_EQ(req.method, "GET");
+    EXPECT_EQ(req.target, "/test_target/here");
+    EXPECT_EQ(req.version, "HTTP/1.1");
     EXPECT_EQ(req.data.size(), 2);
     EXPECT_EQ(req.data["firstname"], "First Name&other");
     EXPECT_EQ(req.data["lastname"], "Last+this=another");

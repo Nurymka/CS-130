@@ -102,6 +102,14 @@ bool HttpRequest::parse(const string& raw_message) {
     if(_method == "GET") {
       vector<string> target_parts = split_str(_target, "?");
       target = target_parts[0];
+      if(target_parts.size() > 1) {
+        stringstream s;
+        s << "?";
+        s << target_parts[1];
+        target_params = s.str();
+      } else {
+        target_params = "";
+      }
       if (target_parts.size() > 1) {
         vector<string> attrs = split_str(target_parts[1], "&");
         for (auto const &attr : attrs) {
@@ -116,6 +124,7 @@ bool HttpRequest::parse(const string& raw_message) {
       }
     } else {
       target = _target;
+      target_params = "";
     }
 
     method = _method;
@@ -130,7 +139,7 @@ bool HttpRequest::parse(const string& raw_message) {
 
 string HttpRequest::to_string() const {
     std::ostringstream oss;
-    oss << method << " " << target << " " << version << "\r\n";
+    oss << method << " " << target << target_params << " " << version << "\r\n";
     for (auto const &header : headers) {
       oss << header << "\r\n";
     }

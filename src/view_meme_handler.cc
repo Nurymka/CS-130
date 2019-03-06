@@ -34,9 +34,10 @@ unique_ptr<HttpResponse> ViewMemeHandler::handle_request(const HttpRequest& req)
 
     if(found_meme) {
       res->status_code = 200;
-      //I will finish this function in the next change.  The current change is becoming pretty big.
+      string meme_json = found_meme->toJSON();
+      res->body = meme_json;
     } else {
-      res->status_code = 400;
+      res->status_code = 404;
     }
   } else {
     res->status_code = 400;

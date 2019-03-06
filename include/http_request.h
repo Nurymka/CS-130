@@ -23,6 +23,7 @@ class HttpRequest {
     // 3 elements in start line;
     string method;
     string target;
+    string target_params;
     string version;
 
     // headers: content type need to be set to “text/plain”
