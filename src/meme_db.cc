@@ -41,14 +41,31 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
   int rc = sqlite3_step(stmt);
 
   if (rc == SQLITE_DONE) {
-    return sqlite3_last_insert_rowid(db_);
+    int inserted = sqlite3_last_insert_rowid(db_);
+    sqlite3_finalize(stmt);
+    return inserted;
   } else {
     return -1;
   }
 }
 
-Meme MemeDB::findByID(string id) {
-  return "I haven't finished this function yet";
+unique_ptr<Meme> MemeDB::findByID(string id) {
+  unique_ptr<Meme> meme;
+  sqlite3_stmt* stmt;
+  const char* sql_img_path = "SELECT img_path, top_text, bottom_text FROM Meme WHERE id = ?";
+
+  sqlite3_prepare(db_, sql, -1, &stmt, NULL);
+  sqlite3_bind_text(stmt, 1, id.c_str(), id.length(), SQLITE_TRANSIENT);
+  int rc = sqlite3_step(stmt);
+
+  if (rc == SQLITE_DONE) {
+    int inserted = sqlite3_last_insert_rowid(db_);
+    //TODO: extract values from SQL command, use those values to populate meme object.
+    
+    sqlite3_finalize(stmt);
+  } else {
+  }
+  return meme;
 }
 
 
