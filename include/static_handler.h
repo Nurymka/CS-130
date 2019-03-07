@@ -35,6 +35,9 @@ class StaticHandler : public Handler {
   string serverRootPath_;
   string staticRootPath_;
   string location_;
+
+  // in case "file" keyword is used, the servlet returns file at serverRootPath + exactFilePath;
+  string exactFilePath_;
 };
 
 #endif  // STATIC_HANDLER_H_

@@ -32,3 +32,23 @@ handler new_meme {
 handler view_meme {
   location /meme/view;
 }
+
+handler static {
+  location /public;
+  root /public;
+}
+
+handler static {
+  location /meme/list;
+  file public/meme/meme_list.html;
+}
+
+handler static {
+  location /meme/view;
+  file public/meme/meme_view.html;
+}
+
+handler static {
+  location /meme/create_new;
+  file public/meme/meme_create.html;
+}
