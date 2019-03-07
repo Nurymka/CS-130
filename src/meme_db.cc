@@ -60,6 +60,7 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
     sqlite3_finalize(stmt);
     return inserted;
   } else {
+    sqlite3_finalize(stmt);
     return -1;
   }
 }
@@ -67,50 +68,53 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
 vector<Meme> MemeDB::findAll() {
   ReaderLock lock(db_mutex_);
   vector<Meme> memes;
-  const char* sql = "SELECT * FROM Meme;";
+  const char* sql = "SELECT img_path, top_text, bottom_text, id FROM Meme;";
   sqlite3_stmt* stmt;
   sqlite3_prepare(db_, sql, -1, &stmt, NULL);
   
   int rc = sqlite3_step(stmt);
-  if(rc = SQLITE_DONE) {
+  if(rc == SQLITE_ROW) {
     // Adapted from:
     // https://stackoverflow.com/questions/11931978/c-sqlite-select-statement-and-store-as-vector
-    vector<vector<string>> meme_strings;
-    int m_index = 0;
     while(sqlite3_column_text(stmt, 0)) {
-
+      vector<string> meme_attributes;
       for(int i = 0; i < 4; i++) {
         string attribute = string((char * ) sqlite3_column_text(stmt, i));
-        meme_strings[i].push_back(attribute);
+        meme_attributes.push_back(attribute);
       }
-      string img_path = meme_strings[0][m_index];
-      string top_text = meme_strings[1][m_index];
-      string bottom_text = meme_strings[2][m_index];
-      string id = meme_strings[3][m_index];
-      m_index++;
-      Meme k = Meme(img_path, top_text, bottom_text, id);
-      memes.push_back(k);
+      string img_path = meme_attributes[0];
+      string top_text = meme_attributes[1];
+      string bottom_text = meme_attributes[2];
+      string id = meme_attributes[3];
+      memes.push_back(Meme(img_path, top_text, bottom_text, id));
+      sqlite3_step(stmt);
     }
   }
 
+  sqlite3_finalize(stmt);
   return memes;
 }
 
 unique_ptr<Meme> MemeDB::findByID(string id) {
   ReaderLock lock(db_mutex_);
+
   unique_ptr<Meme> meme;
+
+  // id should only be numeric
+  if (id.find_first_not_of("0123456789") != std::string::npos) {
+    return meme;
+  }
   sqlite3_stmt* stmt;
   const char* sql = "SELECT img_path, top_text, bottom_text FROM Meme WHERE id = ?;";
   sqlite3_prepare(db_, sql, -1, &stmt, NULL);
-  sqlite3_bind_text(stmt, 1, id.c_str(), id.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_int(stmt, 1, stoi(id)); 
   
   int rc = sqlite3_step(stmt);
-  if(rc == SQLITE_DONE) {
+  if(rc == SQLITE_ROW) {
     // Adapted from:
     // https://stackoverflow.com/questions/11931978/c-sqlite-select-statement-and-store-as-vector
     vector<string> meme_attributes;
     if(sqlite3_column_text(stmt, 0)) {
-
       for(int i = 0; i < 3; i++) {
         string attribute = string((char * ) sqlite3_column_text(stmt, i));
         meme_attributes.push_back(attribute);
@@ -122,6 +126,7 @@ unique_ptr<Meme> MemeDB::findByID(string id) {
     } 
   }
  
+  sqlite3_finalize(stmt);
   return meme;
 }
 
