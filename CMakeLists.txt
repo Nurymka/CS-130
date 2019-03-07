@@ -144,6 +144,11 @@ add_test(
     COMMAND /bin/bash ${CMAKE_CURRENT_SOURCE_DIR}/tests/proxy_integration_test.sh
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+add_test(
+    NAME meme_creation_test
+    COMMAND /bin/bash ${CMAKE_CURRENT_SOURCE_DIR}/tests/meme_creation_test.sh
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # TODO(!): Update with target/test targets
 # include(cmake/CodeCoverageReportConfig.cmake)
 # generate_coverage_report(TARGETS example_server example_lib TESTS example_lib_test)

@@ -1,11 +1,23 @@
 #include <string>
 #include <boost/format.hpp>
 #include <vector>
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 #include "meme_db.h"
 
 using namespace std;
 
+// https://stackoverflow.com/questions/989795/example-for-boost-shared-mutex-multiple-reads-one-write
+// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2406.html#shared_lock_rationale
+typedef boost::shared_lock<boost::shared_mutex> ReaderLock;
+typedef boost::unique_lock<boost::shared_mutex> WriterLock;
+
 // adapted from https://www.tutorialspoint.com/sqlite/sqlite_c_cpp.htm
+
+MemeDB& MemeDB::getMemeDB() {
+  static MemeDB memeDB;
+  return memeDB;
+}
 
 MemeDB::MemeDB() {
   db_path_ = MEME_DB_PATH;
@@ -31,6 +43,7 @@ void MemeDB::init() {
 }
 
 int MemeDB::add(string img_path, string top_text, string bottom_text) {
+  WriterLock lock(db_mutex_);
   // https://stackoverflow.com/questions/36815112/c-and-sqlite-how-to-execute-a-query-formed-by-user-input
   // uses prepare and binding to protect against sql injection
   sqlite3_stmt* stmt;
@@ -39,6 +52,7 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
   sqlite3_bind_text(stmt, 1, img_path.c_str(), img_path.length(), SQLITE_TRANSIENT);
   sqlite3_bind_text(stmt, 2, top_text.c_str(), top_text.length(), SQLITE_TRANSIENT);
   sqlite3_bind_text(stmt, 3, bottom_text.c_str(), bottom_text.length(), SQLITE_TRANSIENT);
+
   int rc = sqlite3_step(stmt);
 
   if (rc == SQLITE_DONE) {
@@ -51,6 +65,7 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
 }
 
 vector<Meme> MemeDB::findAll() {
+  ReaderLock lock(db_mutex_);
   vector<Meme> memes;
   const char* sql = "SELECT * FROM Meme;";
   sqlite3_stmt* stmt;
@@ -82,6 +97,7 @@ vector<Meme> MemeDB::findAll() {
 }
 
 unique_ptr<Meme> MemeDB::findByID(string id) {
+  ReaderLock lock(db_mutex_);
   unique_ptr<Meme> meme;
   sqlite3_stmt* stmt;
   const char* sql = "SELECT img_path, top_text, bottom_text FROM Meme WHERE id = ?;";

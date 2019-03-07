@@ -12,7 +12,7 @@ Handler* NewMemeHandler::create(const NginxConfig& config,
 }
 
 NewMemeHandler::NewMemeHandler() {
-  memeDB_ = new MemeDB();
+  memeDB_ = &MemeDB::getMemeDB(); 
 }
 
 NewMemeHandler::NewMemeHandler(MemeDB* memeDB) : memeDB_(memeDB) {}
