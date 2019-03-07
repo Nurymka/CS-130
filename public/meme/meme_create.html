@@ -5,16 +5,17 @@
   <body>
     <h2>Create a new meme</h2>
     <img id="meme_img" src="/public/meme/spongebob_template.jpg" alt="Meme Template" />
-    <form action="/meme/create" method="post">
+    <form id="meme_form" action="/meme/create" method="post">
       <select id="meme_select" name="img_path">
         <option value="/public/meme/spongebob_template.jpg" selected="selected">Mocking SpongeBob</option>
         <option value="/public/meme/thinkaboutit_template.jpg">Think About It</option>
-        <option value="/public/meme/drake_template.jpg">Drake</option>
+        <option value="/public/meme/onedoesnotsimply_template.jpg">One Does Not Simply</option>
       </select><br>
       <input type="text" name="top_text" placeholder="Top text..."><br>
       <input type="text" name="bottom_text" placeholder="Bottom text..."><br>
       <input type="submit" value="Create">
     </form>
+    <p id="new_meme_msg">Created meme <a id="new_meme_link">here</a></p>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
   <script>
@@ -22,6 +23,17 @@
       $("#meme_img").attr("src", $("#meme_select").val());
     });
 
-        
+    $("#meme_form").submit(function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: "POST",
+        url: "/meme/create",
+        data: $("#meme_form").serialize(),
+        success: function(data) {
+          $("#new_meme_link").attr("href", "/public/meme/view?" + $.param(data));
+          $("#new_meme_msg").show("slow");
+        }
+      });
+    });    
   </script>
 </html>
