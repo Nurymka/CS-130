@@ -1,14 +1,28 @@
 <!DOCTYPE html>
 <html>
-  <style>
-    body { display: inline-block; position: relative; }
-    span { color: white; font: 2em bold Impact, sans-serif; position: absolute; text-align: center; width: 100%; }
-    #top { top: 0; }
-    #bottom { bottom: 0; }
-  </style>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"  integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+  <link rel="stylesheet" href="/public/meme/meme.css">
   <body>
-    <img src="$meme.image">
-    <span id="top">$meme.top</span>
-    <span id="bottom">$meme.bottom</span>
+    <div class="meme_view">
+      <img id="meme_img">
+      <p id="top">$meme.top</span>
+      <p id="bottom">$meme.bottom</span>
+    </div>
   </body>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
+  <script>
+    $(document).ready(function () {
+      $.ajax({
+        type: "GET",
+        url: "/meme/get" + document.location.search,
+        success: function(data) {
+          var meme = JSON.parse(data);
+          $("#meme_img").attr("src", meme.img_path);
+          $("#top").text(meme.top_text);
+          $("#bottom").text(meme.bottom_text);
+          $(".meme_view").show();
+        }
+      });
+    })
+  </script>
 </html>
