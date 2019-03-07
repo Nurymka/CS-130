@@ -17,7 +17,8 @@ const unordered_map<string, string> EXT_TO_CONTENT_TYPE = {
   { "jpg", "image/jpeg" },
   { "jpeg", "image/jpeg" },
   { "png", "image/png" },
-  { "zip", "application/zip"}
+  { "zip", "application/zip"},
+  { "css", "text/css" }
 };
 
 const char DEFAULT_CONTENT_TYPE[] = "text/plain";
