@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"  integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+  <link rel="stylesheet" href="/public/meme/meme.css">
+  <body>
+    <h2>Create a new meme</h2>
+    <img id="meme_img" src="/public/meme/spongebob_template.jpg" alt="Meme Template" />
+    <form action="/meme/create" method="post">
+      <select id="meme_select" name="img_path">
+        <option value="/public/meme/spongebob_template.jpg" selected="selected">Mocking SpongeBob</option>
+        <option value="/public/meme/thinkaboutit_template.jpg">Think About It</option>
+        <option value="/public/meme/drake_template.jpg">Drake</option>
+      </select><br>
+      <input type="text" name="top_text" placeholder="Top text..."><br>
+      <input type="text" name="bottom_text" placeholder="Bottom text..."><br>
+      <input type="submit" value="Create">
+    </form>
+  </body>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
+  <script>
+    $("#meme_select").change(function () {
+      $("#meme_img").attr("src", $("#meme_select").val());
+    });
+
+        
+  </script>
+</html>
