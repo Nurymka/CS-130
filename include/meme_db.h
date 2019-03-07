@@ -27,6 +27,7 @@ class MemeDB {
   int add(string img_path, string top_text, string bottom_text);
   unique_ptr<Meme> findByID(string id);
   vector<Meme> findAll();
+  void clear();
 
  private:
   void init();

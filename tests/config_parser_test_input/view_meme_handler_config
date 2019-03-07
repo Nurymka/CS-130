@@ -1,0 +1,5 @@
+root /usr/src/projects/iceberg-webserver/;
+
+handler view_meme {
+  location /meme/view;
+}

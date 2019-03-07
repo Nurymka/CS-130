@@ -1,4 +1,5 @@
 #include <memory>
+#include <iostream>
 #include "view_meme_handler.h"
 #include "http_request.h"
 #include "http_response.h"
@@ -20,6 +21,10 @@ ViewMemeHandler::ViewMemeHandler(MemeDB* memeDB) : memeDB_(memeDB) {}
 
 ViewMemeHandler::~ViewMemeHandler() {
   delete memeDB_;
+}
+
+void ViewMemeHandler::setMemeDB(MemeDB* memeDB) {
+  memeDB_ = memeDB;
 }
 
 // Accepts GET requests with required ID parameters: img_path, top_text, bottom_text
