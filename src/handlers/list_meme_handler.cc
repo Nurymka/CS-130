@@ -23,15 +23,19 @@ ListMemeHandler::~ListMemeHandler() {
   delete memeDB_;
 }
 
-// Accepts GET requests with required ID parameters: img_path, top_text, bottom_text
 // Returns a 200 response with the requested meme.
 unique_ptr<HttpResponse> ListMemeHandler::handle_request(const HttpRequest& req) {
   unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
   res->version = req.version;
 
   if (req.method == "GET") {
-    // We retrieve all the memes from the database
-    vector<Meme> memes = memeDB_->findAll();
+    string query;
+    if (req.data.find("q") != req.data.end()) {
+      query = req.data.at("q");
+    }
+    // retrieve all memes with matching query
+    vector<Meme> memes = memeDB_->findAll(query);
+
     res->status_code = 200;
     // We consolidate the memes into a nice array of JSON objects.
     stringstream meme_list;

@@ -66,12 +66,23 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
 }
 
 vector<Meme> MemeDB::findAll() {
+  return findAll(""); // passing an empty query will return all memes
+}
+
+
+vector<Meme> MemeDB::findAll(string query) {
   ReaderLock lock(db_mutex_);
   vector<Meme> memes;
-  const char* sql = "SELECT img_path, top_text, bottom_text, id FROM Meme;";
+  query = "%" + query + "%"; // surround with wildcard to match substring
+  const char* sql = "SELECT img_path, top_text, bottom_text, id FROM Meme " \
+                    "WHERE img_path LIKE ? OR top_text LIKE ? OR bottom_text LIKE ? " \
+                    "ORDER BY id desc;";
   sqlite3_stmt* stmt;
   sqlite3_prepare(db_, sql, -1, &stmt, NULL);
-  
+  sqlite3_bind_text(stmt, 1, query.c_str(), query.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 2, query.c_str(), query.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 3, query.c_str(), query.length(), SQLITE_TRANSIENT);
+
   int rc = sqlite3_step(stmt);
   if(rc == SQLITE_ROW) {
     // Adapted from:

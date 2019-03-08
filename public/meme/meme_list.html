@@ -3,27 +3,59 @@
   <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"  integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
   <link rel="stylesheet" href="/public/meme/meme.css">
   <body>
+    <form method="GET">
+      <input type="text" name="q">
+      <input type="submit" value="Search">
+    </form>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
   <script>
+    const searchParams = new URLSearchParams(window.location.search)
+    const query = searchParams.get('q');
+    $("input[name=q]").val(query);
+
     $(document).ready(function () {
       $.ajax({
         type: "GET",
-        url: "/meme/all",
+        url: "/meme/all" + window.location.search,
         success: function(data) {
+          // memes are returned in reverse creation order
           var res = JSON.parse(data);
+          var header_text;
+          if (query) {
+            if (res.memes.length == 0) {
+              header_text = "No results found for: " + query;
+            }
+            else {
+              header_text = res.memes.length + " result(s) found for: " + query;
+            }
+          }
+          else {
+            header_text = "Displaying all memes:";
+          }
+          var header = $("<h2/>");
+          header.text(header_text);
+          header.appendTo("body");
+          var i = 1;
           res.memes.forEach(function(meme) {
             var div = $("<div/>");
+            var meme_header = $("<h3/>");
+            meme_header.text(i + ".");
             var top_text = $("<p/>");
             top_text.text(meme.top_text);
             var bot_text = $("<p/>");
             bot_text.text(meme.bottom_text);
             var img = $("<img/>");
             img.attr("src", meme.img_path);
-            img.appendTo(div);
+            var link = $("<a/>");
+            link.attr("href", "/meme/view?id=" + meme.id);
+            img.appendTo(link); // make image clickable to view page
+            meme_header.appendTo(div);
+            link.appendTo(div);
             top_text.appendTo(div);
             bot_text.appendTo(div);
             div.appendTo("body");
+            i++;
           });
         }
       });

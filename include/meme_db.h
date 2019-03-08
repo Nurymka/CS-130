@@ -26,7 +26,13 @@ class MemeDB {
   // Returns the id of the created entry upon success, -1 upon error.
   int add(string img_path, string top_text, string bottom_text);
   unique_ptr<Meme> findByID(string id);
+
+  // Returns all entries in the Meme table (reverse creation order)
   vector<Meme> findAll();
+
+  // Returns all entries in the Meme table that contains query as a
+  // substring in img_path, top_text or bottom_text (reverse creation order)
+  vector<Meme> findAll(string query);
   void clear();
 
  private:
