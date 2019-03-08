@@ -31,16 +31,16 @@ unique_ptr<HttpResponse> ListMemeHandler::handle_request(const HttpRequest& req)
 
   if (req.method == "GET") {
     // We retrieve all the memes from the database
-    vector<Meme> memes = memeDB_->findAll();    
+    vector<Meme> memes = memeDB_->findAll();
     res->status_code = 200;
     // We consolidate the memes into a nice array of JSON objects.
     stringstream meme_list;
     meme_list << "{ \"memes\" : [ ";
     vector<Meme>::iterator it = memes.begin();
-    while(it != memes.end()) {
+    while (it != memes.end()) {
       meme_list << it->toJSON();
       it++;
-      if(it == memes.end()) {
+      if (it == memes.end()) {
         break;
       } else {
         meme_list << ", ";
@@ -48,7 +48,7 @@ unique_ptr<HttpResponse> ListMemeHandler::handle_request(const HttpRequest& req)
     }
     meme_list << " ] }";
     res->body = meme_list.str();
-    
+
   } else {
     res->status_code = 400;
   }
