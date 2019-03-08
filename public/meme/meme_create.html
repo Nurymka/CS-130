@@ -15,6 +15,7 @@
       <input type="text" name="bottom_text" placeholder="Bottom text..."><br>
       <input type="submit" value="Create">
     </form>
+    <p id="empty_fields_msg">Can't have memes without captions!</p>
     <p id="new_meme_msg">Created meme <a id="new_meme_link">here</a></p>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
@@ -25,12 +26,17 @@
 
     $("#meme_form").submit(function(e) {
       e.preventDefault();
+      if ($("input[name='top_text']").val().length == 0 || $("input[name='bottom_text']").val().length == 0) {
+        $("#empty_fields_msg").show();
+        return;
+      }
+
       $.ajax({
         type: "POST",
         url: "/meme/create",
         data: $("#meme_form").serialize(),
         success: function(data) {
-          $("#new_meme_link").attr("href", "/public/meme/view?" + $.param(data));
+          $("#new_meme_link").attr("href", "/meme/view?" + $.param(data));
           $("#new_meme_msg").show("slow");
         }
       });

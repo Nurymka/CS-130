@@ -2,6 +2,10 @@
   display: none;
 }
 
+#empty_fields_msg {
+  display: none;
+}
+
 .meme_view {
   display: none;
 }
