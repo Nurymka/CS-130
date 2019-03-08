@@ -30,7 +30,11 @@ handler new_meme {
 }
 
 handler view_meme {
-  location /meme/view;
+  location /meme/get;
+}
+
+handler list_meme {
+  location /meme/all;
 }
 
 handler static {

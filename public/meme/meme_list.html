@@ -1,10 +1,32 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Add React in One Minute</title>
-  </head>
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"  integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+  <link rel="stylesheet" href="/public/meme/meme.css">
   <body>
-    
   </body>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
+  <script>
+    $(document).ready(function () {
+      $.ajax({
+        type: "GET",
+        url: "/meme/all",
+        success: function(data) {
+          var res = JSON.parse(data);
+          res.memes.forEach(function(meme) {
+            var div = $("<div/>");
+            var top_text = $("<p/>");
+            top_text.text(meme.top_text);
+            var bot_text = $("<p/>");
+            bot_text.text(meme.bottom_text);
+            var img = $("<img/>");
+            img.attr("src", meme.img_path);
+            img.appendTo(div);
+            top_text.appendTo(div);
+            bot_text.appendTo(div);
+            div.appendTo("body");
+          });
+        }
+      });
+    })
+  </script>
 </html>
