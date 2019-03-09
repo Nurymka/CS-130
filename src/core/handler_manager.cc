@@ -10,6 +10,7 @@
 #include "new_meme_handler.h"
 #include "view_meme_handler.h"
 #include "list_meme_handler.h"
+#include "delete_meme_handler.h"
 
 unique_ptr<Handler> HandlerManager::createByName(const string& name,
                                                  const NginxConfig& config,
@@ -32,6 +33,8 @@ unique_ptr<Handler> HandlerManager::createByName(const string& name,
     return unique_ptr<Handler>(ViewMemeHandler::create(config, root_path));
   } else if (name == "list_meme") {
     return unique_ptr<Handler>(ListMemeHandler::create(config, root_path));
+  } else if (name == "delete_meme") {
+    return unique_ptr<Handler>(DeleteMemeHandler::create(config, root_path));
   } else {
     return unique_ptr<Handler>(NotFoundHandler::create(config, root_path));
   }

@@ -54,6 +54,7 @@ add_library(proxy_lib src/handlers/reverse_proxy_handler.cc)
 add_library(new_meme_handler_lib src/handlers/new_meme_handler.cc)
 add_library(view_meme_handler_lib src/handlers/view_meme_handler.cc)
 add_library(list_meme_handler_lib src/handlers/list_meme_handler.cc)
+add_library(delete_meme_handler_lib src/handlers/delete_meme_handler.cc)
 add_library(handler_manager_lib src/core/handler_manager.cc)
 add_library(logger_lib src/core/logger.cc)
 add_library(location_lib src/core/location.cc)
@@ -77,7 +78,7 @@ target_link_libraries(list_meme_handler_lib http_request_lib http_response_lib c
 target_link_libraries(meme_db sqlite3 ${CMAKE_DL_LIBS})
 target_link_libraries(handler_manager_lib echo_handler_lib static_handler_lib not_found_handler_lib
                       bad_request_handler_lib status_handler_lib proxy_lib sleep_handler_lib
-                      new_meme_handler_lib view_meme_handler_lib list_meme_handler_lib)
+                      new_meme_handler_lib view_meme_handler_lib list_meme_handler_lib delete_meme_handler_lib)
 target_link_libraries(logger_lib Boost::log)
 
 # TODO(!): Update executable name, srcs, and deps

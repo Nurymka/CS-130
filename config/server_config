@@ -29,6 +29,10 @@ handler new_meme {
   location /meme/create;
 }
 
+handler delete_meme {
+  location /meme/delete;
+}
+
 handler view_meme {
   location /meme/get;
 }

@@ -96,6 +96,29 @@ bool MemeDB::update(string id, string img_path, string top_text, string bottom_t
   }
 }
 
+bool MemeDB::remove(string id) {
+  WriterLock lock(db_mutex_);
+  // id should be only numbers
+  if (!is_numeric(id)) {
+    return false;
+  }
+  // https://stackoverflow.com/questions/36815112/c-and-sqlite-how-to-execute-a-query-formed-by-user-input
+  // uses prepare and binding to protect against sql injection
+  sqlite3_stmt* stmt;
+  const char* sql = "DELETE FROM Meme WHERE id = ?;";
+  sqlite3_prepare(db_, sql, -1, &stmt, NULL);
+  sqlite3_bind_int(stmt, 1, stoi(id));
+
+  int rc = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if (rc == SQLITE_DONE) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 vector<Meme> MemeDB::findAll() {
   return findAll(""); // passing an empty query will return all memes
 }
