@@ -5,8 +5,9 @@
   <body>
     <div class="meme_view">
       <img id="meme_img">
-      <p id="top">$meme.top</span>
-      <p id="bottom">$meme.bottom</span>
+      <p id="top"></p></span>
+      <p id="bottom"></p></span>
+      <a id="edit-link" href="">Edit</a>
     </div>
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
@@ -20,6 +21,7 @@
           $("#meme_img").attr("src", meme.img_path);
           $("#top").text(meme.top_text);
           $("#bottom").text(meme.bottom_text);
+          $("#edit-link").attr("href", "/meme/create_new?update="+meme.id);
           $(".meme_view").show();
         }
       });

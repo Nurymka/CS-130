@@ -35,12 +35,23 @@ unique_ptr<HttpResponse> NewMemeHandler::handle_request(const HttpRequest& req) 
     string img_path = req.data.at("img_path");
     string top_text = req.data.at("top_text");
     string bottom_text = req.data.at("bottom_text");
-    int id = memeDB_->add(img_path, top_text, bottom_text);
 
-    if (id != -1) {
+    bool completed ;
+    string id;
+    // update existing meme
+    if (req.data.find("update") != req.data.end()) {
+      id = req.data.at("update");
+      bool updated = memeDB_->update(id, img_path, top_text, bottom_text);
+      completed = updated;
+    } else { // create new meme
+      int id_num = memeDB_->add(img_path, top_text, bottom_text);
+      completed = (id_num != -1);
+      id = to_string(id_num);
+    }
+    if (completed) {
       res->status_code = 201;
       res->headers.push_back("Content-Type: application/json");
-      res->body = "{ \"id\" : " + to_string(id) + " }";
+      res->body = "{ \"id\" : " + id + " }";
     } else {
       res->status_code = 400;
     }

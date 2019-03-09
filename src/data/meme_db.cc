@@ -12,6 +12,10 @@ using namespace std;
 typedef boost::shared_lock<boost::shared_mutex> ReaderLock;
 typedef boost::unique_lock<boost::shared_mutex> WriterLock;
 
+bool is_numeric(string s) {
+  return s.find_first_not_of("0123456789") == string::npos;
+}
+
 // adapted from https://www.tutorialspoint.com/sqlite/sqlite_c_cpp.htm
 
 MemeDB& MemeDB::getMemeDB() {
@@ -65,6 +69,33 @@ int MemeDB::add(string img_path, string top_text, string bottom_text) {
   }
 }
 
+bool MemeDB::update(string id, string img_path, string top_text, string bottom_text) {
+  WriterLock lock(db_mutex_);
+  // id should be only numbers
+  if (!is_numeric(id)) {
+    return false;
+  }
+  // https://stackoverflow.com/questions/36815112/c-and-sqlite-how-to-execute-a-query-formed-by-user-input
+  // uses prepare and binding to protect against sql injection
+  sqlite3_stmt* stmt;
+  const char* sql = "UPDATE Meme SET img_path = ?, top_text = ?, bottom_text = ? " \
+                    "WHERE id = ?;";
+  sqlite3_prepare(db_, sql, -1, &stmt, NULL);
+  sqlite3_bind_text(stmt, 1, img_path.c_str(), img_path.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 2, top_text.c_str(), top_text.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 3, bottom_text.c_str(), bottom_text.length(), SQLITE_TRANSIENT);
+  sqlite3_bind_int(stmt, 4, stoi(id));
+
+  int rc = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if (rc == SQLITE_DONE) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 vector<Meme> MemeDB::findAll() {
   return findAll(""); // passing an empty query will return all memes
 }
@@ -110,9 +141,8 @@ unique_ptr<Meme> MemeDB::findByID(string id) {
   ReaderLock lock(db_mutex_);
 
   unique_ptr<Meme> meme;
-
-  // id should only be numeric
-  if (id.find_first_not_of("0123456789") != std::string::npos) {
+  // id should be only numbers
+  if (!is_numeric(id)) {
     return meme;
   }
   sqlite3_stmt* stmt;

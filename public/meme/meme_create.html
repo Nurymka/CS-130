@@ -11,8 +11,8 @@
         <option value="/public/meme/thinkaboutit_template.jpg">Think About It</option>
         <option value="/public/meme/onedoesnotsimply_template.jpg">One Does Not Simply</option>
       </select><br>
-      <input type="text" name="top_text" placeholder="Top text..."><br>
-      <input type="text" name="bottom_text" placeholder="Bottom text..."><br>
+      <input type="text" id="top_input" name="top_text" placeholder="Top text..."><br>
+      <input type="text" id="bottom_input" name="bottom_text" placeholder="Bottom text..."><br>
       <input type="submit" value="Create">
     </form>
     <p id="empty_fields_msg">Can't have memes without captions!</p>
@@ -20,6 +20,25 @@
   </body>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin></script>
   <script>
+    const searchParams = new URLSearchParams(window.location.search)
+    const update_id = searchParams.get('update');
+    if (update_id) {
+      $.ajax({
+        type: "GET",
+        url: "/meme/get?id="+update_id,
+        success: function(data) {
+          var meme = JSON.parse(data);
+          $("#meme_select").val(meme.img_path);
+          $("#top_input").val(meme.top_text);
+          $("#bottom_input").val(meme.bottom_text);
+          $("#meme_img").attr("src", meme.img_path); 
+          var update = $("<input type='hidden' name='update'>");
+          update.val(meme.id);
+          $("#meme_form").append(update);
+        }
+      });
+    }
+
     $("#meme_select").change(function () {
       $("#meme_img").attr("src", $("#meme_select").val());
     });

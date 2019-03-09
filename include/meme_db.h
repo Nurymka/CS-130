@@ -25,6 +25,11 @@ class MemeDB {
   // Adds a new entry to Meme table.
   // Returns the id of the created entry upon success, -1 upon error.
   int add(string img_path, string top_text, string bottom_text);
+
+  // Updates meme entry in Meme table.
+  // Returns true if update was successful, false otherwise.
+  bool update(string id, string img_path, string top_text, string bottom_text);
+  
   unique_ptr<Meme> findByID(string id);
 
   // Returns all entries in the Meme table (reverse creation order)
