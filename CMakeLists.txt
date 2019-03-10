@@ -126,6 +126,10 @@ add_executable(list_meme_handler_test tests/list_meme_handler_test.cc)
 target_link_libraries(list_meme_handler_test http_request_lib http_response_lib list_meme_handler_lib meme_db meme_lib
 config_parser_lib gtest_main)
 
+add_executable(delete_meme_handler_test tests/delete_meme_handler_test.cc)
+target_link_libraries(delete_meme_handler_test http_request_lib http_response_lib delete_meme_handler_lib meme_db meme_lib
+config_parser_lib gtest_main)
+
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
@@ -138,6 +142,8 @@ gtest_discover_tests(location_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 gtest_discover_tests(reverse_proxy_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(view_meme_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(list_meme_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(delete_meme_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+
 
 
 
@@ -170,7 +176,7 @@ generate_coverage_report(
     TARGETS server Boost::system server_lib session_lib config_parser_lib 
         http_request_lib http_response_lib
     TESTS config_parser_lib_test http_request_test http_response_test 
-        echo_handler_test static_handler_test location_test status_handler_test reverse_proxy_handler_test view_meme_handler_test
+        echo_handler_test static_handler_test location_test status_handler_test reverse_proxy_handler_test view_meme_handler_test list_meme_handler_test delete_meme_handler_test
 )
 
 include(cmake/CppLint.cmake)

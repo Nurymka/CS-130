@@ -1,4 +1,5 @@
 #include <memory>
+#include <iostream>
 #include "delete_meme_handler.h"
 #include "http_request.h"
 #include "http_response.h"
@@ -13,6 +14,10 @@ Handler* DeleteMemeHandler::create(const NginxConfig& config,
 
 DeleteMemeHandler::DeleteMemeHandler() {
   memeDB_ = &MemeDB::getMemeDB(); 
+}
+
+void DeleteMemeHandler::setMemeDB(MemeDB* memeDB) {
+  memeDB_ = memeDB;
 }
 
 DeleteMemeHandler::DeleteMemeHandler(MemeDB* memeDB) : memeDB_(memeDB) {}
