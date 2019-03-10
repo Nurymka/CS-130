@@ -122,6 +122,10 @@ add_executable(view_meme_handler_test tests/view_meme_handler_test.cc)
 target_link_libraries(view_meme_handler_test http_request_lib http_response_lib view_meme_handler_lib meme_db meme_lib
 config_parser_lib gtest_main)
 
+add_executable(list_meme_handler_test tests/list_meme_handler_test.cc)
+target_link_libraries(list_meme_handler_test http_request_lib http_response_lib list_meme_handler_lib meme_db meme_lib
+config_parser_lib gtest_main)
+
 # TODO(!): Update with test binary
 # gtest_discover_tests(example_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(config_parser_lib_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
@@ -133,6 +137,7 @@ gtest_discover_tests(status_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURC
 gtest_discover_tests(location_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(reverse_proxy_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 gtest_discover_tests(view_meme_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+gtest_discover_tests(list_meme_handler_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 
 

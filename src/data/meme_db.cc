@@ -196,7 +196,7 @@ unique_ptr<Meme> MemeDB::findByID(string id) {
 
 void MemeDB::clear() {
   WriterLock lock(db_mutex_);
-  const char* sql = "DELETE FROM Meme;";
+  const char* sql = "DROP TABLE Meme;";
   sqlite3_stmt* stmt;
   sqlite3_prepare(db_, sql, -1, &stmt, NULL);
   sqlite3_step(stmt);

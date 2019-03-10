@@ -8,6 +8,7 @@
 #include "meme.h"
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 namespace {
 class ViewMemeHandlerTest: public ::testing::Test {
@@ -21,9 +22,10 @@ class ViewMemeHandlerTest: public ::testing::Test {
 
     virtual void SetUp() {
       viewMemeHandler = (ViewMemeHandler *) ViewMemeHandler::create(NginxConfig(), "");
-      meme_db = new MemeDB("test.db");
+      meme_db = new MemeDB("test_view.db");
       meme_db->add("/dank/memes", "Hey guys!  Did you know that", "BOTTOM TEXT");
       meme_db->add("/danker/memes", "That feeling when", "You write unit tests with outdated memes.");
+      std::cout << meme_db->findAll().size() << "\r\n\r\n";
       viewMemeHandler->setMemeDB(meme_db);
     }
 

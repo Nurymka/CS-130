@@ -23,6 +23,11 @@ ListMemeHandler::~ListMemeHandler() {
   delete memeDB_;
 }
 
+void ListMemeHandler::setMemeDB(MemeDB* memeDB) {
+  memeDB_ = memeDB;
+}
+
+
 // Returns a 200 response with the requested meme.
 unique_ptr<HttpResponse> ListMemeHandler::handle_request(const HttpRequest& req) {
   unique_ptr<HttpResponse> res = make_unique<HttpResponse>();
@@ -39,6 +44,7 @@ unique_ptr<HttpResponse> ListMemeHandler::handle_request(const HttpRequest& req)
     res->status_code = 200;
     // We consolidate the memes into a nice array of JSON objects.
     stringstream meme_list;
+    res->headers.push_back("Content-Type: application/json");
     meme_list << "{ \"memes\" : [ ";
     vector<Meme>::iterator it = memes.begin();
     while (it != memes.end()) {

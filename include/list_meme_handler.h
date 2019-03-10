@@ -11,6 +11,7 @@ class ListMemeHandler : public Handler {
   static Handler* create(const NginxConfig& config,
                          const string& root_path);
   unique_ptr<HttpResponse> handle_request(const HttpRequest& req);
+  void setMemeDB(MemeDB* memeDB);
 
  private:
   ListMemeHandler();
