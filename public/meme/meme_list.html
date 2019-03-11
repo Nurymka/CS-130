@@ -41,20 +41,20 @@
             var div = $("<div/>");
             var meme_header = $("<h3/>");
             meme_header.text(i + ".");
-            var top_text = $("<p/>");
+            var top_text = $("<p class='meme_text top_text'/>");
             top_text.text(meme.top_text);
-            var bot_text = $("<p/>");
-            bot_text.text(meme.bottom_text);
-            var img = $("<img/>");
-            img.attr("src", meme.img_path);
+            var bottom_text = $("<p class='meme_text bottom_text'/>");
+            bottom_text.text(meme.bottom_text);
+            var meme_img = $("<div class='meme'/>");
+            meme_img.css("background-image", "url("+meme.img_path+")");
             var link = $("<a/>");
             link.attr("href", "/meme/view?id=" + meme.id);
-            img.appendTo(link); // make image clickable to view page
-            meme_header.appendTo(div);
-            link.appendTo(div);
-            top_text.appendTo(div);
-            bot_text.appendTo(div);
             div.appendTo("body");
+            div.append(meme_header);
+            div.append(link);
+            link.append(meme_img);
+            meme_img.append(top_text);
+            meme_img.append(bottom_text);
             i++;
           });
         }

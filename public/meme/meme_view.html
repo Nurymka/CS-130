@@ -4,9 +4,10 @@
   <link rel="stylesheet" href="/public/meme/meme.css">
   <body>
     <div class="meme_view">
-      <img id="meme_img">
-      <p id="top"></p></span>
-      <p id="bottom"></p></span>
+      <div class="meme">
+        <p id="top" class="meme_text top_text"></p></span>
+        <p id="bottom" class="meme_text bottom_text"></p></span>
+      </div>
       <a id="edit-link" href="">Edit</a>
       <a id="delete-link" href="">Delete</a>
     </div>
@@ -19,7 +20,7 @@
         url: "/meme/get" + document.location.search,
         success: function(data) {
           var meme = JSON.parse(data);
-          $("#meme_img").attr("src", meme.img_path);
+          $(".meme").css("background-image", "url("+meme.img_path+")");
           $("#top").text(meme.top_text);
           $("#bottom").text(meme.bottom_text);
           $("#edit-link").attr("href", "/meme/create_new?update="+meme.id);
